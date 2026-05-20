@@ -54,7 +54,14 @@ class Flickr30k_200(VisionDataset):
         return len(self.data)
 
 
+_OFFLINE_DIR = "/project/lt200394-thllmV/benchmark/CLIP_benchmark/runs/cache/flickr30k_200"
+
 def _get_lines(url):
+    # offline fallback: look up file by basename in local cache
+    local = os.path.join(_OFFLINE_DIR, os.path.basename(url))
+    if os.path.exists(local):
+        with codecs.open(local, "r", encoding="utf-8") as fp:
+            return fp.read().splitlines()
     response = requests.get(url, timeout=30)
     return response.text.splitlines()
 
