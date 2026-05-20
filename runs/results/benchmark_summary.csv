@@ -1,4 +1,4 @@
-dataset,language,metaclip2,s1,s2,s3
+dataset,language,metaclip2-worldwide-h14,vit-t-16-clipkd-vit-b-32-lr2e-3-e32,vit-t-16-clipkd-vit-b-16-siglip2-lr2e-3-e32,vit-t-16-clipkd-vit-b-16-siglip2-lr4.47e-3-e100
 babel_imagenet,en,0.74616,0.36632,0.3139,0.3482
 babel_imagenet,id,0.7161123110151187,0.0819438444924406,0.06034557235421166,0.06272138228941684
 babel_imagenet,jv,0.5097267759562841,0.0673224043715847,0.05617486338797814,0.06076502732240437
