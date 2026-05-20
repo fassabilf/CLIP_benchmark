@@ -1,0 +1,1 @@
+{"dataset": "babel_imagenet", "model": "ViT-H-14-worldwide-quickgelu", "pretrained": "metaclip2_worldwide", "task": "zeroshot_classification", "metrics": {"acc1": 0.5496651785714286, "acc5": 0.7585714285714286, "mean_per_class_recall": 0.5496205357142857}, "language": "th"}

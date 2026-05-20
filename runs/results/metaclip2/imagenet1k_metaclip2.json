@@ -1,0 +1,1 @@
+{"dataset": "imagenet1k-unverified", "model": "ViT-H-14-worldwide-quickgelu", "pretrained": "metaclip2_worldwide", "task": "zeroshot_classification", "metrics": {"acc1": 0.81274, "acc5": 0.96356, "mean_per_class_recall": 0.8129}, "language": "en"}
