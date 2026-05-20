@@ -1,0 +1,1 @@
+{"dataset": "babel_imagenet", "model": "ViT-T-16", "pretrained": "/project/lt200394-thllmV/multilingual-clip-kd/open_clip/experiments/siglip2_kd/clipkd_ViT-T-16_from_ViT-B-16-SigLIP2_v3/checkpoints/epoch_100.pt", "task": "zeroshot_classification", "metrics": {"acc1": 0.06272138228941684, "acc5": 0.11654427645788337, "mean_per_class_recall": 0.06267818574514039}, "language": "id"}
