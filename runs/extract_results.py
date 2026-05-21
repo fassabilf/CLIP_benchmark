@@ -20,8 +20,10 @@ COL = {
     "s2":        "vit-t-16-clipkd-vit-b-16-siglip2-lr2e-3-e32",
     "s3":        "vit-t-16-clipkd-vit-b-16-siglip2-lr4.47e-3-e100",
     "s3_e8":     "vit-t-16-clipkd-vit-b-16-siglip2-lr4.47e-3-e8",
+    "wit_e8":    "vit-t-16-clipkd-vit-b-16-siglip2-wit-lr2e-3-e8",
+    "wit_e32":   "vit-t-16-clipkd-vit-b-16-siglip2-wit-lr2e-3-e32",
 }
-TAGS_ORDER = ["metaclip2", "s1", "s1_e8", "s2", "s3", "s3_e8"]
+TAGS_ORDER = ["metaclip2", "s1", "s1_e8", "s2", "s3", "s3_e8", "wit_e8", "wit_e32"]
 
 # Language groupings for the aggregate view.
 SEA_LANGS = {
