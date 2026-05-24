@@ -81,28 +81,61 @@ def write_summary(table, out_path: Path):
             w.writerow([ds, lang] + [table[(ds, lang)].get(t, "") for t in TAGS_ORDER])
 
 
-def write_aggregate(table, out_path: Path):
+def _aggregate_rows(table):
+    """Return [(label, group, [per-tag values-or-None])] in display order."""
     def avg(ds, langs, tag):
         vals = [table[(ds, l)][tag] for l in langs
                 if (ds, l) in table and tag in table[(ds, l)]
                 and table[(ds, l)][tag] == table[(ds, l)][tag]]  # not NaN
         return sum(vals) / len(vals) if vals else None
 
+    rows = []
+    for ds in BENCH_ORDER:
+        label = ds.replace("-unverified", "")
+        eng_lang = ENG_LANG.get(ds)
+        eng_row = [table.get((ds, eng_lang), {}).get(t) or None for t in TAGS_ORDER]
+        eng_row = [v if isinstance(v, (int, float)) else None for v in eng_row]
+        rows.append((label, "ENG", eng_row))
+        if ds in SEA_LANGS:
+            rows.append((label, "SEA", [avg(ds, SEA_LANGS[ds], t) for t in TAGS_ORDER]))
+    # CVQA: EN with ENG group, LOCAL with SEA group (local non-English languages).
+    rows.append(("cvqa", "EN",    [table.get(("cvqa", "EN"),    {}).get(t) for t in TAGS_ORDER]))
+    rows.append(("cvqa", "LOCAL", [table.get(("cvqa", "LOCAL"), {}).get(t) for t in TAGS_ORDER]))
+    return rows
+
+
+def _mean_rows(rows):
+    """Compute ENG / SEA / ENG+SEA means across the aggregate rows.
+
+    cvqa EN counts as ENG; cvqa LOCAL counts as SEA (local-language eval).
+    """
+    eng_groups = {"ENG", "EN"}
+    sea_groups = {"SEA", "LOCAL"}
+
+    def mean_over(groups):
+        out = []
+        for i in range(len(TAGS_ORDER)):
+            vals = [r[2][i] for r in rows if r[1] in groups and isinstance(r[2][i], (int, float))]
+            out.append(sum(vals) / len(vals) if vals else None)
+        return out
+
+    return [
+        ("MEAN", "ENG",     mean_over(eng_groups)),
+        ("MEAN", "SEA",     mean_over(sea_groups)),
+        ("MEAN", "ENG+SEA", mean_over(eng_groups | sea_groups)),
+    ]
+
+
+def write_aggregate(table, out_path: Path):
     cols = [COL[t] for t in TAGS_ORDER]
+    rows = _aggregate_rows(table)
+    means = _mean_rows(rows)
     with out_path.open("w") as out:
         w = csv.writer(out)
         w.writerow(["benchmark", "column"] + cols)
-        for ds in BENCH_ORDER:
-            label = ds.replace("-unverified", "")
-            eng_lang = ENG_LANG.get(ds)
-            eng_row = [table.get((ds, eng_lang), {}).get(t, "") for t in TAGS_ORDER]
-            w.writerow([label, "ENG"] + eng_row)
-            if ds in SEA_LANGS:
-                sea_row = [avg(ds, SEA_LANGS[ds], t) for t in TAGS_ORDER]
-                w.writerow([label, "SEA"] + [f"{v:.6f}" if v is not None else "" for v in sea_row])
-        # CVQA: EN + LOCAL (LOCAL spans all countries, not SEA-only)
-        for sub in ("EN", "LOCAL"):
-            w.writerow(["cvqa", sub] + [table.get(("cvqa", sub), {}).get(t, "") for t in TAGS_ORDER])
+        for label, group, vals in rows + means:
+            w.writerow([label, group] +
+                       [f"{v:.6f}" if isinstance(v, (int, float)) else "" for v in vals])
 
 
 def fmt(v):
@@ -115,27 +148,16 @@ def fmt(v):
 
 
 def print_aggregate(table):
-    def avg(ds, langs, tag):
-        vals = [table[(ds, l)][tag] for l in langs
-                if (ds, l) in table and tag in table[(ds, l)]
-                and table[(ds, l)][tag] == table[(ds, l)][tag]]
-        return sum(vals) / len(vals) if vals else None
-
     cols = [COL[t][:32] for t in TAGS_ORDER]
-    print(f"\n{'Benchmark':22s} {'col':6s} " + " ".join(f"{c:>32s}" for c in cols))
-    print("-" * 180)
-    for ds in BENCH_ORDER:
-        label = ds.replace("-unverified", "")
-        eng_lang = ENG_LANG.get(ds)
-        eng = [table.get((ds, eng_lang), {}).get(t, "") for t in TAGS_ORDER]
-        print(f"{label:22s} {'ENG':6s} " + " ".join(f"{fmt(v):>32s}" for v in eng))
-        if ds in SEA_LANGS:
-            sea = [avg(ds, SEA_LANGS[ds], t) for t in TAGS_ORDER]
-            print(f"{label:22s} {'SEA':6s} " +
-                  " ".join(f"{(f'{v:.3f}' if v is not None else '—'):>32s}" for v in sea))
-    for sub in ("EN", "LOCAL"):
-        vs = [table.get(("cvqa", sub), {}).get(t, "") for t in TAGS_ORDER]
-        print(f"{'cvqa':22s} {sub:6s} " + " ".join(f"{fmt(v):>32s}" for v in vs))
+    rows = _aggregate_rows(table)
+    means = _mean_rows(rows)
+    print(f"\n{'Benchmark':22s} {'col':8s} " + " ".join(f"{c:>32s}" for c in cols))
+    print("-" * 200)
+    for label, group, vals in rows:
+        print(f"{label:22s} {group:8s} " + " ".join(f"{fmt(v):>32s}" for v in vals))
+    print("-" * 200)
+    for label, group, vals in means:
+        print(f"{label:22s} {group:8s} " + " ".join(f"{fmt(v):>32s}" for v in vals))
 
 
 def main():
