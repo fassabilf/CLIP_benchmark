@@ -3,7 +3,7 @@
 #SBATCH -N 1 -c 16
 #SBATCH --gpus-per-node=1
 #SBATCH --ntasks-per-node=1
-#SBATCH -t 01:00:00
+#SBATCH -t 02:00:00
 #SBATCH -A lt200394
 #SBATCH -J cb_sweep_mv1_${SLURM_ARRAY_TASK_ID}
 #SBATCH -a 1-2
@@ -26,7 +26,8 @@ case "$SLURM_ARRAY_TASK_ID" in
 esac
 
 RESULTS="${CB_ROOT}/runs/results/${TAG}"
-mkdir -p "$RESULTS"
+PREDS="${RESULTS}/preds"
+mkdir -p "$RESULTS" "$PREDS"
 
 run() {
     local OUT="$1"; shift
@@ -35,6 +36,7 @@ run() {
         python -m clip_benchmark.cli eval \
             --model "$MODEL" --pretrained "$CKPT" \
             --batch_size 512 --num_workers 8 \
+            --save_predictions "$PREDS" \
             --output "$OUT" \
             "$@"
 }
@@ -96,6 +98,7 @@ else
         --model "$MODEL" --pretrained "$CKPT" \
         --cache_dir "$HF_HUB_CACHE" \
         --batch_size 128 \
+        --save_predictions "${PREDS}/cvqa_${TAG}_pred.jsonl" \
         --output "$CVQA_OUT"
 fi
 
