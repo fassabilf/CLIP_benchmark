@@ -14,7 +14,8 @@ from pathlib import Path
 
 # Column rename: tag → full hp-annotated name shown in CSV header.
 COL = {
-    "metaclip2": "metaclip2-worldwide-h14",
+    "metaclip2":     "metaclip2-worldwide-h14",
+    "metaclip2_b16": "metaclip2-worldwide-b16",
     "s1":        "vit-t-16-clipkd-vit-b-32-lr2e-3-e32",
     "s1_e8":     "vit-t-16-clipkd-vit-b-32-lr2e-3-e8",
     "s2":        "vit-t-16-clipkd-vit-b-16-siglip2-lr2e-3-e32",
@@ -25,7 +26,7 @@ COL = {
     "mv1_e8":    "vit-t-16-clipkd-vit-b-16-siglip2-mv1-lr2e-3-e8",
     "mv1_e32":   "vit-t-16-clipkd-vit-b-16-siglip2-mv1-lr2e-3-e32",
 }
-TAGS_ORDER = ["metaclip2", "s1", "s1_e8", "s2", "s3", "s3_e8",
+TAGS_ORDER = ["metaclip2", "metaclip2_b16", "s1", "s1_e8", "s2", "s3", "s3_e8",
               "wit_e8", "wit_e32", "mv1_e8", "mv1_e32"]
 
 # Language groupings for the aggregate view.

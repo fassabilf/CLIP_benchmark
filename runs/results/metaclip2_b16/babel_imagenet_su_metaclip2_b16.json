@@ -1,0 +1,1 @@
+{"dataset": "babel_imagenet", "model": "facebook/metaclip-2-worldwide-b16", "pretrained": "", "task": "zeroshot_classification", "metrics": {"acc1": 0.28469387755102044, "acc5": 0.38510204081632654, "mean_per_class_recall": 0.2851020408163265}, "language": "su"}
