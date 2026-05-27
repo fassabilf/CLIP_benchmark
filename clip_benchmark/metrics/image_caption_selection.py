@@ -1,11 +1,13 @@
+import json
 import logging
+import os
 from contextlib import suppress
 
 import torch
 import torch.nn.functional as F
 from tqdm import tqdm
 
-def evaluate(model, dataloader, tokenizer,  device, amp=True):
+def evaluate(model, dataloader, tokenizer,  device, amp=True, save_predictions_stem=None):
     """
     Evaluate the model on the given dataset.
     The task has N instances, each instance has I images and C captions.
@@ -37,6 +39,8 @@ def evaluate(model, dataloader, tokenizer,  device, amp=True):
     image_score = []
     text_score = []
     score = []
+    pred_records = [] if save_predictions_stem is not None else None
+    instance_counter = 0
     for batch_images, batch_texts in tqdm(dataloader):
         if len(batch_images.shape) == 4:
             B, C, H, W = batch_images.shape
@@ -72,6 +76,21 @@ def evaluate(model, dataloader, tokenizer,  device, amp=True):
             image_score.append(pred_image_is_correct)
             text_score.append(pred_text_is_correct)
             score.append(all_correct)
+            if pred_records is not None:
+                pred_records.append({
+                    "instance_idx": instance_counter,
+                    "scores": scores.cpu().tolist(),
+                    "image_closest_text": image_closest_text.cpu().tolist(),
+                    "text_closest_image": text_closest_image.cpu().tolist(),
+                    "pred_text_is_correct": bool(pred_text_is_correct),
+                    "pred_image_is_correct": bool(pred_image_is_correct),
+                    "all_correct": bool(all_correct),
+                })
+            instance_counter += 1
+    if pred_records is not None:
+        with open(save_predictions_stem + "_pred.jsonl", "w") as f:
+            for row in pred_records:
+                f.write(json.dumps(row) + "\n")
     metrics = {}
     metrics["image_acc"] = torch.Tensor(image_score).float().mean().item()
     metrics["text_acc"] = torch.Tensor(text_score).float().mean().item()

@@ -62,9 +62,11 @@ def get_parser_args():
     parser_eval.add_argument('--output', default="{dataset}_{pretrained}_{model}_{language}_{task}.json", type=str, help="output file where to dump the metrics. Can be in form of a template, e.g., --output='{dataset}_{pretrained}_{model}_{language}_{task}.json'")
     parser_eval.add_argument('--quiet', dest='verbose', action="store_false", help="suppress verbose messages")
     parser_eval.add_argument('--save_clf', default=None, type=str, help="optionally save the classification layer output by the text tower")
+    parser_eval.add_argument('--save_predictions', default=None, type=str, help="optionally dump per-sample predictions to this directory as JSONL (one file per task, schema follows VLM2Vec _pred.jsonl convention).")
+    parser_eval.add_argument('--save_predictions_topk', default=10, type=int, help="number of ranked candidates to keep per sample when dumping predictions.")
     parser_eval.add_argument('--load_clfs', nargs='+', default=[], type=str, help="optionally load and average mutliple layers output by text towers.")
     parser_eval.add_argument('--skip_existing', default=False, action="store_true", help="whether to skip an evaluation if the output file exists.")
-    parser_eval.add_argument('--model_type', default="open_clip", type=str, choices=MODEL_TYPES, help="clip model type")
+    parser_eval.add_argument('--model_type', default="auto", type=str, choices=MODEL_TYPES + ["auto"], help="clip model type. 'auto' infers from --model: 'org/name' → hf_transformers, anything else → open_clip.")
     parser_eval.add_argument('--wds_cache_dir', default=None, type=str, help="optional cache directory for webdataset only")
     parser_eval.set_defaults(which='eval')
 
@@ -300,6 +302,13 @@ def run(args):
                 shuffle=False, num_workers=args.num_workers, 
                 collate_fn=collate_fn
             )
+    pred_stem = None
+    if args.save_predictions is not None:
+        os.makedirs(args.save_predictions, exist_ok=True)
+        pred_stem = os.path.join(
+            args.save_predictions,
+            os.path.splitext(os.path.basename(output))[0],
+        )
     if task == "zeroshot_classification":
         zeroshot_templates = dataset.templates if hasattr(dataset, "templates") else None
         if args.verbose:
@@ -307,24 +316,28 @@ def run(args):
         classnames = dataset.classes if hasattr(dataset, "classes") else None
         assert (zeroshot_templates is not None and classnames is not None), "Dataset does not support classification"
         metrics = zeroshot_classification.evaluate(
-            model, 
-            dataloader, 
-            tokenizer, 
-            classnames, zeroshot_templates, 
-            device=args.device, 
+            model,
+            dataloader,
+            tokenizer,
+            classnames, zeroshot_templates,
+            device=args.device,
             amp=args.amp,
             verbose=args.verbose,
             save_clf=args.save_clf,
             load_clfs=args.load_clfs,
-        ) 
+            save_predictions_stem=pred_stem,
+            save_predictions_topk=args.save_predictions_topk,
+        )
     elif task == "zeroshot_retrieval":
         metrics = zeroshot_retrieval.evaluate(
-            model, 
-            dataloader, 
-            tokenizer, 
+            model,
+            dataloader,
+            tokenizer,
             recall_k_list=args.recall_k,
-            device=args.device, 
-            amp=args.amp
+            device=args.device,
+            amp=args.amp,
+            save_predictions_stem=pred_stem,
+            save_predictions_topk=args.save_predictions_topk,
         )
     elif task == "image_caption_selection":
         metrics = image_caption_selection.evaluate(
@@ -333,6 +346,7 @@ def run(args):
             tokenizer,
             device=args.device,
             amp=args.amp,
+            save_predictions_stem=pred_stem,
         )
     elif task == "linear_probe":
         # we also need the train and validation splits for linear probing.
