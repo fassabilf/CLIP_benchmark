@@ -1,0 +1,1 @@
+{"dataset": "babel_imagenet", "model": "ViT-B-16", "pretrained": "/project/lt200394-thllmV/benchmark/pretrained/clipkd_released/ViT_B_16-laion400m_e32.pt", "task": "zeroshot_classification", "metrics": {"acc1": 0.14682577565632457, "acc5": 0.24272076372315035, "mean_per_class_recall": 0.1468257756563246}, "language": "ms"}
