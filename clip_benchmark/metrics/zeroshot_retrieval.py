@@ -1,11 +1,51 @@
+import json
 import logging
+import os
 from contextlib import suppress
 
 import torch
 import torch.nn.functional as F
 from tqdm import tqdm
 
-def evaluate(model, dataloader, tokenizer,  device, amp=True, recall_k_list=[5]):
+
+def _dump_retrieval_predictions(stem, scores, texts_image_index, topk):
+    """Stream per-image and per-text ranked lists. Schema mirrors VLM2Vec _pred.jsonl."""
+    if stem is None:
+        return
+    nb_texts, nb_images = scores.shape
+    # i2t: for each image, rank all texts by score
+    k_t = min(topk, nb_texts)
+    k_i = min(topk, nb_images)
+    scores_i2t = scores.t()  # (nb_images, nb_texts)
+    topk_vals_i2t, topk_idx_i2t = torch.topk(scores_i2t, k=k_t, dim=1)
+    topk_vals_t2i, topk_idx_t2i = torch.topk(scores, k=k_i, dim=1)
+    # group GT texts per image (each text -> texts_image_index[j] = image idx)
+    gt_texts_per_image = [[] for _ in range(nb_images)]
+    for j, img_idx in enumerate(texts_image_index):
+        gt_texts_per_image[int(img_idx)].append(int(j))
+    i2t_path = stem + "_i2t.jsonl"
+    t2i_path = stem + "_t2i.jsonl"
+    with open(i2t_path, "w") as f:
+        for i in range(nb_images):
+            row = {
+                "image_idx": i,
+                "gt_text_ids": gt_texts_per_image[i],
+                "ranked_text_ids": [int(x) for x in topk_idx_i2t[i].tolist()],
+                "ranked_text_scores": [float(s) for s in topk_vals_i2t[i].tolist()],
+            }
+            f.write(json.dumps(row) + "\n")
+    with open(t2i_path, "w") as f:
+        for j in range(nb_texts):
+            row = {
+                "text_idx": j,
+                "gt_image_id": int(texts_image_index[j]),
+                "ranked_image_ids": [int(x) for x in topk_idx_t2i[j].tolist()],
+                "ranked_image_scores": [float(s) for s in topk_vals_t2i[j].tolist()],
+            }
+            f.write(json.dumps(row) + "\n")
+
+
+def evaluate(model, dataloader, tokenizer,  device, amp=True, recall_k_list=[5], save_predictions_stem=None, save_predictions_topk=10):
     """
     Evaluate the model on the given dataset
 
@@ -64,6 +104,9 @@ def evaluate(model, dataloader, tokenizer,  device, amp=True, recall_k_list=[5])
 
     # get the score for each text and image pair
     scores  = texts_emb @ images_emb.t()
+
+    if save_predictions_stem is not None:
+        _dump_retrieval_predictions(save_predictions_stem, scores, texts_image_index, save_predictions_topk)
 
     # construct a the positive pair matrix, which tells whether each text-image pair is a positive or not
     positive_pairs = torch.zeros_like(scores, dtype=bool)

@@ -2,7 +2,9 @@
 Code adapated from https://github.com/mlfoundations/open_clip/blob/main/src/training/zero_shot.py
 Thanks to the authors of OpenCLIP
 """
+import json
 import logging
+import os
 from contextlib import suppress
 
 import torch
@@ -162,7 +164,33 @@ def average_precision_per_class(scores, targets):
     return ap
 
 
-def evaluate(model, dataloader, tokenizer, classnames, templates, device, amp=True, verbose=False, save_clf=None, load_clfs=[]):
+def _dump_classification_predictions(stem, logits, target, classnames, topk):
+    """Stream per-sample predictions + a sidecar classes.json. Schema mirrors VLM2Vec _pred.jsonl."""
+    if stem is None:
+        return
+    k = min(topk, logits.shape[1])
+    topk_vals, topk_idx = torch.topk(logits, k=k, dim=1)
+    topk_idx = topk_idx.tolist()
+    topk_vals = topk_vals.tolist()
+    target_list = target.tolist() if hasattr(target, "tolist") else list(target)
+    pred_path = stem + "_pred.jsonl"
+    classes_path = stem + "_classes.json"
+    with open(pred_path, "w") as f:
+        for i, (true_i, idxs, scores) in enumerate(zip(target_list, topk_idx, topk_vals)):
+            row = {
+                "sample_idx": i,
+                "true": int(true_i),
+                "true_name": classnames[int(true_i)] if (isinstance(true_i, int) or hasattr(true_i, '__int__')) and 0 <= int(true_i) < len(classnames) else None,
+                "topk": [int(x) for x in idxs],
+                "topk_names": [classnames[int(x)] for x in idxs],
+                "topk_scores": [float(s) for s in scores],
+            }
+            f.write(json.dumps(row) + "\n")
+    with open(classes_path, "w") as f:
+        json.dump(list(classnames), f)
+
+
+def evaluate(model, dataloader, tokenizer, classnames, templates, device, amp=True, verbose=False, save_clf=None, load_clfs=[], save_predictions_stem=None, save_predictions_topk=10):
     """
     Run zero-shot classification and evaluate the metrics
 
@@ -208,6 +236,9 @@ def evaluate(model, dataloader, tokenizer, classnames, templates, device, amp=Tr
 
     logits, target = run_classification(model, classifier, dataloader, device, amp=amp)
     is_multilabel = (len(target.shape) == 2)
+
+    if save_predictions_stem is not None and not is_multilabel:
+        _dump_classification_predictions(save_predictions_stem, logits, target, classnames, save_predictions_topk)
 
     if is_multilabel:
         if verbose:
