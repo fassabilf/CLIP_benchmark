@@ -25,9 +25,10 @@ COL = {
     "wit_e32":   "vit-t-16-clipkd-vit-b-16-siglip2-wit-lr2e-3-e32",
     "mv1_e8":    "vit-t-16-clipkd-vit-b-16-siglip2-mv1-lr2e-3-e8",
     "mv1_e32":   "vit-t-16-clipkd-vit-b-16-siglip2-mv1-lr2e-3-e32",
+    "clipkd_b16_laion": "clipkd-released-vit-b-16-teacher-laion400m",
 }
 TAGS_ORDER = ["metaclip2", "metaclip2_b16", "s1", "s1_e8", "s2", "s3", "s3_e8",
-              "wit_e8", "wit_e32", "mv1_e8", "mv1_e32"]
+              "wit_e8", "wit_e32", "mv1_e8", "mv1_e32", "clipkd_b16_laion"]
 
 # Language groupings for the aggregate view.
 SEA_LANGS = {
