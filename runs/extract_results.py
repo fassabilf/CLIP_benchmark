@@ -138,10 +138,74 @@ def _mean_rows(rows):
     ]
 
 
+# SEA languages whose script is NOT Latin (CLIP-BPE byte fallback hurts these).
+NONLATIN = {"my", "th", "mya_Mymr", "tha_Thai"}
+
+
+def _script_mean_rows(table):
+    """MEAN over the per-language SEA benchmarks, split by script (Latin vs non-Latin).
+
+    Mirrors how MEAN/SEA is built (per-benchmark lang-average, then mean across
+    benchmarks), but restricts to the Latin- or non-Latin-script SEA languages.
+    CVQA has no per-language SEA breakdown, so it is excluded here.
+    """
+    def script_mean(keep_latin):
+        out = []
+        for tag in TAGS_ORDER:
+            per_bench = []
+            for ds in BENCH_ORDER:
+                if ds not in SEA_LANGS:
+                    continue
+                langs = [l for l in SEA_LANGS[ds] if (l in NONLATIN) != keep_latin]
+                vals = [table[(ds, l)][tag] for l in langs
+                        if (ds, l) in table and tag in table[(ds, l)]
+                        and table[(ds, l)][tag] == table[(ds, l)][tag]]
+                if vals:
+                    per_bench.append(sum(vals) / len(vals))
+            out.append(sum(per_bench) / len(per_bench) if per_bench else None)
+        return out
+
+    return [
+        ("MEAN", "SEA-Latin",    script_mean(True)),
+        ("MEAN", "SEA-nonLatin", script_mean(False)),
+    ]
+
+
+# Per-language MEAN rows: each language → its per-benchmark code (iso2 for babel/xm3600,
+# NLLB code for flickr/xtd). Mean is taken across whichever benchmarks cover the language.
+LANG_CODES = {
+    "en": {"imagenet1k-unverified": "en", "babel_imagenet": "en", "crossmodal3600": "en",
+           "flickr30k-200": "eng_Latn", "xtd200": "eng_Latn"},
+    "id": {"babel_imagenet": "id", "crossmodal3600": "id", "flickr30k-200": "ind_Latn", "xtd200": "ind_Latn"},
+    "jv": {"babel_imagenet": "jv", "flickr30k-200": "jav_Latn", "xtd200": "jav_Latn"},
+    "ms": {"babel_imagenet": "ms", "flickr30k-200": "zsm_Latn", "xtd200": "zsm_Latn"},
+    "my": {"babel_imagenet": "my", "flickr30k-200": "mya_Mymr", "xtd200": "mya_Mymr"},
+    "su": {"babel_imagenet": "su", "flickr30k-200": "sun_Latn", "xtd200": "sun_Latn"},
+    "th": {"babel_imagenet": "th", "crossmodal3600": "th", "flickr30k-200": "tha_Thai", "xtd200": "tha_Thai"},
+    "vi": {"babel_imagenet": "vi", "crossmodal3600": "vi", "flickr30k-200": "vie_Latn", "xtd200": "vie_Latn"},
+}
+LANG_ORDER = ["en", "id", "jv", "ms", "my", "su", "th", "vi"]
+
+
+def _lang_mean_rows(table):
+    """One MEAN row per language: mean across the benchmarks that cover it."""
+    rows = []
+    for lang in LANG_ORDER:
+        per_ds = LANG_CODES[lang]
+        vals = []
+        for tag in TAGS_ORDER:
+            xs = [table[(ds, code)][tag] for ds, code in per_ds.items()
+                  if (ds, code) in table and tag in table[(ds, code)]
+                  and table[(ds, code)][tag] == table[(ds, code)][tag]]
+            vals.append(sum(xs) / len(xs) if xs else None)
+        rows.append(("MEAN-LANG", lang, vals))
+    return rows
+
+
 def write_aggregate(table, out_path: Path):
     cols = [COL[t] for t in TAGS_ORDER]
     rows = _aggregate_rows(table)
-    means = _mean_rows(rows)
+    means = _mean_rows(rows) + _script_mean_rows(table) + _lang_mean_rows(table)
     with out_path.open("w") as out:
         w = csv.writer(out)
         w.writerow(["benchmark", "column"] + cols)
@@ -162,7 +226,7 @@ def fmt(v):
 def print_aggregate(table):
     cols = [COL[t][:32] for t in TAGS_ORDER]
     rows = _aggregate_rows(table)
-    means = _mean_rows(rows)
+    means = _mean_rows(rows) + _script_mean_rows(table) + _lang_mean_rows(table)
     print(f"\n{'Benchmark':22s} {'col':8s} " + " ".join(f"{c:>32s}" for c in cols))
     print("-" * 200)
     for label, group, vals in rows:

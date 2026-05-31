@@ -51,8 +51,37 @@ arch `ViT-T-16` = **CLIP-BPE** (vocab 49408, ctx 77 — matches checkpoint `toke
 4. **Plateau by ~e16–e24.** SEA gains flatten and e32 dips slightly vs e24 on several
    benchmarks (Babel SEA 0.086→0.084, XTD SEA 0.039→0.037).
 
+## Per-script / per-language breakdown (mean across Babel+XM3600+Flickr+XTD)
+
+Added as rows at the end of `benchmark_aggregate.csv` (`MEAN SEA-Latin`,
+`MEAN SEA-nonLatin`, and `MEAN-LANG <lang>`). Script split: non-Latin = my (Myanmar),
+th (Thai); Latin = id, jv, ms, su, vi.
+
+| group | e0 | e8 | e16 | e24 | e32 | B16 teacher |
+|---|---|---|---|---|---|---|
+| **SEA-Latin** | 0.026 | 0.038 | 0.054 | 0.061 | **0.060** | 0.473 |
+| **SEA-nonLatin** | 0.001 | 0.007 | 0.015 | 0.018 | **0.017** | 0.379 |
+| en | 0.458 | 0.032 | 0.038 | 0.039 | 0.040 | 0.641 |
+| id | 0.037 | 0.043 | 0.061 | 0.067 | **0.069** | 0.582 |
+| ms | 0.031 | 0.044 | 0.057 | 0.069 | 0.067 | 0.528 |
+| jv | 0.037 | 0.041 | 0.061 | 0.062 | 0.061 | 0.320 |
+| vi | 0.008 | 0.029 | 0.051 | 0.057 | 0.056 | 0.540 |
+| su | 0.038 | 0.041 | 0.046 | 0.055 | 0.052 | 0.258 |
+| th | 0.002 | 0.010 | 0.018 | 0.024 | 0.022 | 0.450 |
+| my | 0.001 | 0.004 | 0.008 | 0.007 | 0.008 | 0.251 |
+
+**The student's bottleneck is its CLIP-BPE tokenizer.** Latin SEA reaches ~0.06 while
+non-Latin sits at ~0.017 (Thai 0.022, Myanmar 0.008) — yet the B16 teacher (XLM-V
+tokenizer) handles those scripts fine (th 0.450, my 0.251). So the multilingual signal
+exists in the teacher; the byte-level CLIP-BPE student simply cannot represent Thai /
+Myanmar script. Among Latin SEA, id/ms/vi gain most; vi has the largest lift (0.008→0.056)
+since the English init covered Vietnamese diacritics poorly.
+
 ## Takeaway / next
 The MetaCLIP2 teacher escapes the mv1 collapse and lifts SEA above the floor, but a
 SEA-only KD from an English init yields severe forgetting + weak SEA acquisition. Likely
 fixes: (a) mix English data back into the KD set to retain the init's strength, or
-(b) init from scratch so there is no English to forget, isolating true SEA transfer.
+(b) init from scratch so there is no English to forget, isolating true SEA transfer, or
+(c) **swap the student tokenizer to a multilingual one** (XLM-V / SigLIP2) — the
+per-script result shows CLIP-BPE structurally caps non-Latin (Thai/Myanmar) regardless of
+teacher quality.
