@@ -1,2 +1,5 @@
 cache/
 logs/
+# Per-sample prediction dumps live on HF (fassabilf/sea-clip-eval-predictions), not git.
+results/*/preds/
+results/*.bak_before_preds/

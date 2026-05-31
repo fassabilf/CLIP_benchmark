@@ -1,0 +1,1 @@
+{"dataset": "babel_imagenet", "model": "ViT-T-16", "pretrained": "/project/lt200394-thllmV/multilingual-clip-kd/open_clip/pretrained/student/clipkd_vit_t_16_init_clean.pt", "task": "zeroshot_classification", "metrics": {"acc1": 0.001293103448275862, "acc5": 0.013879310344827585, "mean_per_class_recall": 0.001293103448275862}, "language": "my"}

@@ -31,6 +31,18 @@ WIT_E32_CKPT="/project/lt200394-thllmV/multilingual-clip-kd/open_clip/experiment
 MV1_E8_CKPT="/project/lt200394-thllmV/multilingual-clip-kd/open_clip/experiments/siglip2_kd/clipkd_ViT-T-16_from_ViT-B-16-SigLIP2_multilingual_v1/checkpoints/epoch_8.pt"
 MV1_E32_CKPT="/project/lt200394-thllmV/multilingual-clip-kd/open_clip/experiments/siglip2_kd/clipkd_ViT-T-16_from_ViT-B-16-SigLIP2_multilingual_v1/checkpoints/epoch_32.pt"
 
+# Habibi metaclip2_kd run (latest, May31): ViT-T-16 <- MetaCLIP2-B16-worldwide,
+# 3-dataset SEA blend (cultural-ground + WIT + bloom), 32ep lr2e-3.
+# Student is CLIP-BPE (vocab 49408 ctx 77). EVAL in env mc2_eval_env (pinned to habibi's
+# open_clip), arch name = ViT-T-16 (HIS config). Do NOT eval with open_clip_edit's
+# ViT-T-16 (that's the SigLIP2 256000 config). E0 = pre-KD init = epoch-0 baseline.
+MC2_DIR="/project/lt200394-thllmV/multilingual-clip-kd/open_clip/experiments/metaclip2_kd/clipkd_ViT-T-16_from_ViT-B-16-MetaClip_pretrained_v1/checkpoints"
+MC2_E0_CKPT="/project/lt200394-thllmV/multilingual-clip-kd/open_clip/pretrained/student/clipkd_vit_t_16_init_clean.pt"
+MC2_E8_CKPT="$MC2_DIR/epoch_8.pt"
+MC2_E16_CKPT="$MC2_DIR/epoch_16.pt"
+MC2_E24_CKPT="$MC2_DIR/epoch_24.pt"
+MC2_E32_CKPT="$MC2_DIR/epoch_32.pt"
+
 # --- timing helpers (source me, then call `stage` / `timed_run`) ---
 # Usage in sweep scripts:
 #   stage "Babel-ImageNet (8 langs)"   # prints banner + start time

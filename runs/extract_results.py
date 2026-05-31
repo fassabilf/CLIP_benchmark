@@ -26,9 +26,16 @@ COL = {
     "mv1_e8":    "vit-t-16-clipkd-vit-b-16-siglip2-mv1-lr2e-3-e8",
     "mv1_e32":   "vit-t-16-clipkd-vit-b-16-siglip2-mv1-lr2e-3-e32",
     "clipkd_b16_laion": "clipkd-released-vit-b-16-teacher-laion400m",
+    # Habibi metaclip2_kd run: ViT-T-16 (CLIP-BPE) <- MetaCLIP2-B16-worldwide, 3-blend SEA.
+    "mc2_e0":    "vit-t-16-clipkd-metaclip2-b16-mc2-lr2e-3-e0init",
+    "mc2_e8":    "vit-t-16-clipkd-metaclip2-b16-mc2-lr2e-3-e8",
+    "mc2_e16":   "vit-t-16-clipkd-metaclip2-b16-mc2-lr2e-3-e16",
+    "mc2_e24":   "vit-t-16-clipkd-metaclip2-b16-mc2-lr2e-3-e24",
+    "mc2_e32":   "vit-t-16-clipkd-metaclip2-b16-mc2-lr2e-3-e32",
 }
 TAGS_ORDER = ["metaclip2", "metaclip2_b16", "s1", "s1_e8", "s2", "s3", "s3_e8",
-              "wit_e8", "wit_e32", "mv1_e8", "mv1_e32", "clipkd_b16_laion"]
+              "wit_e8", "wit_e32", "mv1_e8", "mv1_e32", "clipkd_b16_laion",
+              "mc2_e0", "mc2_e8", "mc2_e16", "mc2_e24", "mc2_e32"]
 
 # Language groupings for the aggregate view.
 SEA_LANGS = {
