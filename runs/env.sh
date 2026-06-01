@@ -43,6 +43,15 @@ MC2_E16_CKPT="$MC2_DIR/epoch_16.pt"
 MC2_E24_CKPT="$MC2_DIR/epoch_24.pt"
 MC2_E32_CKPT="$MC2_DIR/epoch_32.pt"
 
+# Habibi metaclip2_kd v2 (May31): ViT-T-16 (CLIP-BPE) <- MetaCLIP2-B16-worldwide,
+# trained on CC12M (10.97M English pairs) = "cc12m-baseline". Same init/teacher/loss as
+# the v1 SEA-blend run above; e0 init == MC2_E0_CKPT (reuse mc2_e0). Eval in mc2_eval_env.
+MC2CC_DIR="/project/lt200394-thllmV/multilingual-clip-kd/open_clip/experiments/metaclip2_kd/clipkd_ViT-T-16_from_ViT-B-16-MetaClip_pretrained_v2/checkpoints"
+MC2CC_E8_CKPT="$MC2CC_DIR/epoch_8.pt"
+MC2CC_E16_CKPT="$MC2CC_DIR/epoch_16.pt"
+MC2CC_E24_CKPT="$MC2CC_DIR/epoch_24.pt"
+MC2CC_E32_CKPT="$MC2CC_DIR/epoch_32.pt"
+
 # --- timing helpers (source me, then call `stage` / `timed_run`) ---
 # Usage in sweep scripts:
 #   stage "Babel-ImageNet (8 langs)"   # prints banner + start time
