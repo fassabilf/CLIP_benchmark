@@ -52,6 +52,26 @@ MC2CC_E16_CKPT="$MC2CC_DIR/epoch_16.pt"
 MC2CC_E24_CKPT="$MC2CC_DIR/epoch_24.pt"
 MC2CC_E32_CKPT="$MC2CC_DIR/epoch_32.pt"
 
+# Habibi single-dataset metaclip2_kd v2 runs (Jun 2026): ViT-T-16 (CLIP-BPE) <- MetaCLIP2-B16-worldwide,
+# one run per dataset (WIT / CulturalGround-OE / Bloom). Random student init. Eval in mc2_eval_env.
+MC2WIT_DIR="/project/lt200394-thllmV/multilingual-clip-kd/open_clip/experiments/metaclip2_kd/clipkd_ViT-T-16_from_ViT-B-16-MetaClip_pretrained_v2_wit/checkpoints"
+MC2WIT_E8_CKPT="$MC2WIT_DIR/epoch_8.pt"
+MC2WIT_E16_CKPT="$MC2WIT_DIR/epoch_16.pt"
+MC2WIT_E24_CKPT="$MC2WIT_DIR/epoch_24.pt"
+MC2WIT_E32_CKPT="$MC2WIT_DIR/epoch_32.pt"
+
+MC2CG_DIR="/project/lt200394-thllmV/multilingual-clip-kd/open_clip/experiments/metaclip2_kd/clipkd_ViT-T-16_from_ViT-B-16-MetaClip_pretrained_v2_cg/checkpoints"
+MC2CG_E8_CKPT="$MC2CG_DIR/epoch_8.pt"
+MC2CG_E16_CKPT="$MC2CG_DIR/epoch_16.pt"
+MC2CG_E24_CKPT="$MC2CG_DIR/epoch_24.pt"
+MC2CG_E32_CKPT="$MC2CG_DIR/epoch_32.pt"
+
+MC2BLOOM_DIR="/project/lt200394-thllmV/multilingual-clip-kd/open_clip/experiments/metaclip2_kd/clipkd_ViT-T-16_from_ViT-B-16-MetaClip_pretrained_v2_bloom/checkpoints"
+MC2BLOOM_E8_CKPT="$MC2BLOOM_DIR/epoch_8.pt"
+MC2BLOOM_E16_CKPT="$MC2BLOOM_DIR/epoch_16.pt"
+MC2BLOOM_E24_CKPT="$MC2BLOOM_DIR/epoch_24.pt"
+MC2BLOOM_E32_CKPT="$MC2BLOOM_DIR/epoch_32.pt"
+
 # --- timing helpers (source me, then call `stage` / `timed_run`) ---
 # Usage in sweep scripts:
 #   stage "Babel-ImageNet (8 langs)"   # prints banner + start time
