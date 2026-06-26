@@ -46,6 +46,15 @@ COL = {
     "mc2cg_e16":    "vit-t-16-clipkd-metaclip2-b16-cg-randinit-lr2e-3-e16",
     "mc2cg_e24":    "vit-t-16-clipkd-metaclip2-b16-cg-randinit-lr2e-3-e24",
     "mc2cg_e32":    "vit-t-16-clipkd-metaclip2-b16-cg-randinit-lr2e-3-e32",
+    "mc2bloom_e8":  "vit-t-16-clipkd-metaclip2-b16-bloom-randinit-lr2e-3-e8",
+    "mc2bloom_e16": "vit-t-16-clipkd-metaclip2-b16-bloom-randinit-lr2e-3-e16",
+    "mc2bloom_e24": "vit-t-16-clipkd-metaclip2-b16-bloom-randinit-lr2e-3-e24",
+    "mc2bloom_e32": "vit-t-16-clipkd-metaclip2-b16-bloom-randinit-lr2e-3-e32",
+    # mc2-v3: CC12M + full SEA blend (CG-OE-filt + WIT-hf-base + Bloom), English init.
+    "mc2v3_e8":  "vit-t-16-clipkd-metaclip2-b16-cc12m+sea-lr2e-3-e8",
+    "mc2v3_e16": "vit-t-16-clipkd-metaclip2-b16-cc12m+sea-lr2e-3-e16",
+    "mc2v3_e24": "vit-t-16-clipkd-metaclip2-b16-cc12m+sea-lr2e-3-e24",
+    "mc2v3_e32": "vit-t-16-clipkd-metaclip2-b16-cc12m+sea-lr2e-3-e32",
     # Comparison baselines (TinyCLIP and MobileCLIP2).
     "tinyclip":       "tinyclip-vit-8m-16-text-3m-yfcc15m",
     "mobileclip2_s0": "mobileclip2-s0",
@@ -56,6 +65,8 @@ TAGS_ORDER = ["metaclip2", "metaclip2_b16", "s1", "s1_e8", "s2", "s3", "s3_e8",
               "mc2cc_e8", "mc2cc_e16", "mc2cc_e24", "mc2cc_e32",
               "mc2wit_e8", "mc2wit_e16", "mc2wit_e24", "mc2wit_e32",
               "mc2cg_e8", "mc2cg_e16", "mc2cg_e24", "mc2cg_e32",
+              "mc2bloom_e8", "mc2bloom_e16", "mc2bloom_e24", "mc2bloom_e32",
+              "mc2v3_e8", "mc2v3_e16", "mc2v3_e24", "mc2v3_e32",
               "tinyclip", "mobileclip2_s0"]
 
 # Language groupings for the aggregate view.

@@ -18,7 +18,9 @@ MODELS = [
     ("mc2_e0",       "e0 (init)"),
     ("mc2_e32",      "mc2-v1 e32"),
     ("mc2cc_e32",    "mc2-cc12m e32"),
+    ("mc2v3_e32",    "mc2-v3 e32"),
     ("metaclip2_b16","B16 teacher"),
+    ("metaclip2",    "H14 ceil"),
     ("mc2wit_e32",   "abl-WIT e32"),
     ("mc2cg_e32",    "abl-CG e32"),
 ]
