@@ -72,6 +72,15 @@ MC2BLOOM_E16_CKPT="$MC2BLOOM_DIR/epoch_16.pt"
 MC2BLOOM_E24_CKPT="$MC2BLOOM_DIR/epoch_24.pt"
 MC2BLOOM_E32_CKPT="$MC2BLOOM_DIR/epoch_32.pt"
 
+# Habibi metaclip2_kd v3 (Jun 2026): ViT-T-16 (CLIP-BPE) <- MetaCLIP2-B16-worldwide,
+# trained on CC12M + full SEA blend (CG-OE-filt × 6 langs + WIT-hf-base × 6 langs + Bloom).
+# Same init (clipkd_vit_t_16_init_clean.pt) / teacher / loss as v1 & v2. Eval in mc2_eval_env.
+MC2V3_DIR="/project/lt200394-thllmV/multilingual-clip-kd/open_clip/experiments/metaclip2_kd/clipkd_ViT-T-16_from_ViT-B-16-MetaClip_pretrained_v3/checkpoints"
+MC2V3_E8_CKPT="$MC2V3_DIR/epoch_8.pt"
+MC2V3_E16_CKPT="$MC2V3_DIR/epoch_16.pt"
+MC2V3_E24_CKPT="$MC2V3_DIR/epoch_24.pt"
+MC2V3_E32_CKPT="$MC2V3_DIR/epoch_32.pt"
+
 # --- timing helpers (source me, then call `stage` / `timed_run`) ---
 # Usage in sweep scripts:
 #   stage "Babel-ImageNet (8 langs)"   # prints banner + start time
