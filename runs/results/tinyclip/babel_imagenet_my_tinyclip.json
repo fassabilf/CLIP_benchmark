@@ -1,0 +1,1 @@
+{"dataset": "babel_imagenet", "model": "/workspace/data/models/tinyclip", "pretrained": "laion400m_e32", "task": "zeroshot_classification", "metrics": {"acc1": 0.0022413793103448275, "acc5": 0.01870689655172414, "mean_per_class_recall": 0.002413793103448276}, "language": "my"}

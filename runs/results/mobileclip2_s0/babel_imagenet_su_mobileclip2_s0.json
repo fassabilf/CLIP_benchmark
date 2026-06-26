@@ -1,0 +1,1 @@
+{"dataset": "babel_imagenet", "model": "MobileCLIP2-S0", "pretrained": "/workspace/data/models/mobileclip2_s0/mobileclip2_s0.pt", "task": "zeroshot_classification", "metrics": {"acc1": 0.010408163265306122, "acc5": 0.051224489795918364, "mean_per_class_recall": 0.010408163265306122}, "language": "su"}

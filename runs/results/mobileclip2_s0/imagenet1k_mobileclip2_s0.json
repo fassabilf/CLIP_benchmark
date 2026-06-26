@@ -1,0 +1,1 @@
+{"dataset": "imagenet1k-unverified", "model": "MobileCLIP2-S0", "pretrained": "dfndr2b", "task": "zeroshot_classification", "metrics": {"acc1": 0.71568, "acc5": 0.92808, "mean_per_class_recall": 0.7157800000000001}, "language": "en"}
