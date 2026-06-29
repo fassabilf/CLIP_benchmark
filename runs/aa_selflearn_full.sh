@@ -88,6 +88,19 @@ for LANG in "${FLORES_LANGS[@]}"; do
         || echo "  (lang $LANG failed; continuing)"
 done
 
+stage "$TAG: CVQA"
+CVQA_OUT="${RESULTS}/cvqa_${TAG}.json"
+if [[ -f "$CVQA_OUT" ]]; then
+    echo "skip (exists): $CVQA_OUT"
+else
+    timed_run "cvqa_${TAG}" \
+        python "${CB_ROOT}/runs/eval_cvqa.py" \
+            --model "$MODEL" --pretrained "$CKPT" \
+            --cache_dir "$HF_HUB_CACHE" \
+            --batch_size 128 \
+            --output "$CVQA_OUT"
+fi
+
 stage "$TAG: ALL DONE"
 echo "Results in: $RESULTS"
 echo "Run: python3 runs/compute_per_lang_mean.py $TAG"
