@@ -1,1 +1,1 @@
-{"dataset": "babel_imagenet", "model": "/workspace/data/models/tinyclip", "pretrained": "laion400m_e32", "task": "zeroshot_classification", "metrics": {"acc1": 0.0826781857451404, "acc5": 0.13904967602591792, "mean_per_class_recall": 0.0826781857451404}, "language": "id"}
+{"dataset": "babel_imagenet", "model": "wkcn/TinyCLIP-ViT-8M-16-Text-3M-YFCC15M", "pretrained": "laion400m_e32", "task": "zeroshot_classification", "metrics": {"acc1": 0.08272138228941685, "acc5": 0.13922246220302376, "mean_per_class_recall": 0.08285097192224622}, "language": "id"}

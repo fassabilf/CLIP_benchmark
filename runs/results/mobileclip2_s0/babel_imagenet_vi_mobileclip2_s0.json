@@ -1,1 +1,1 @@
-{"dataset": "babel_imagenet", "model": "MobileCLIP2-S0", "pretrained": "/workspace/data/models/mobileclip2_s0/mobileclip2_s0.pt", "task": "zeroshot_classification", "metrics": {"acc1": 0.0019120458891013384, "acc5": 0.009560229445506692, "mean_per_class_recall": 0.0019120458891013384}, "language": "vi"}
+{"dataset": "babel_imagenet", "model": "MobileCLIP2-S0", "pretrained": "dfndr2b", "task": "zeroshot_classification", "metrics": {"acc1": 0.09269598470363288, "acc5": 0.12864244741873804, "mean_per_class_recall": 0.09273422562141491}, "language": "vi"}
