@@ -13,6 +13,7 @@ Usage:
   python3 runs/compute_per_lang_mean.py tinyclip mobileclip2_s0
   python3 runs/compute_per_lang_mean.py tinyclip          # single model
 """
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -75,7 +76,7 @@ METRIC_BY_DATASET = {
 }
 
 
-def load_results(tag: str) -> dict:
+def load_results(tag: str, retrieval_metric: str = "image_retrieval_recall@1") -> dict:
     """Load all JSON result files for a given tag into (dataset, lang) → metric."""
     tag_dir = RESULTS_DIR / tag
     if not tag_dir.exists():
@@ -95,7 +96,7 @@ def load_results(tag: str) -> dict:
         if task == "zeroshot_classification":
             v = m.get("acc1")
         elif task == "zeroshot_retrieval":
-            v = m.get("image_retrieval_recall@1")
+            v = m.get(retrieval_metric)
         else:
             continue
         if v is not None:
@@ -125,7 +126,15 @@ def fmt(v):
 
 
 def main():
-    tags = sys.argv[1:] if len(sys.argv) > 1 else []
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--metric", choices=["r1", "r5", "r10"], default="r1",
+                        help="Retrieval recall k to use (default: r1)")
+    parser.add_argument("tags", nargs="*")
+    args = parser.parse_args()
+
+    k = args.metric[1:]
+    retrieval_metric = f"image_retrieval_recall@{k}"
+    tags = args.tags
     if not tags:
         # Auto-discover tags with result dirs
         tags = [d.name for d in sorted(RESULTS_DIR.iterdir())
@@ -134,10 +143,11 @@ def main():
         print("No result tags found. Specify: python3 compute_per_lang_mean.py tinyclip mobileclip2_s0")
         return
 
+    print(f"[metric: {retrieval_metric}]")
     all_means = {}
     for tag in tags:
         try:
-            results = load_results(tag)
+            results = load_results(tag, retrieval_metric)
             means = per_lang_mean(results)
             all_means[tag] = means
             print(f"\n=== {tag} ===")

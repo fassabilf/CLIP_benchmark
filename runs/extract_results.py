@@ -6,6 +6,7 @@
 
 Run from CLIP_benchmark/ root or via `runs/extract.sh`.
 """
+import argparse
 import csv
 import json
 import sys
@@ -89,7 +90,7 @@ BENCH_ORDER = ["imagenet1k-unverified", "babel_imagenet", "crossmodal3600",
                "flickr30k-200", "xtd200"]
 
 
-def load_all(results_dir: Path):
+def load_all(results_dir: Path, retrieval_metric: str = "image_retrieval_recall@1"):
     """Read every JSON under results_dir/<tag>/*.json into a (tag, ds, lang)→value map."""
     table = defaultdict(dict)  # (ds, lang) → {tag: value}
     for tagdir in sorted(results_dir.iterdir()):
@@ -109,7 +110,7 @@ def load_all(results_dir: Path):
             if d.get("task") == "zeroshot_classification":
                 v = m.get("acc1", float("nan"))
             elif d.get("task") == "zeroshot_retrieval":
-                v = m.get("image_retrieval_recall@1", float("nan"))
+                v = m.get(retrieval_metric, float("nan"))
             else:
                 continue
             table[(ds, lang)][tag] = v
@@ -269,13 +270,22 @@ def print_aggregate(table):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--metric", choices=["r1", "r5", "r10"], default="r1",
+                        help="Retrieval recall k to extract (default: r1)")
+    args = parser.parse_args()
+
+    k = args.metric[1:]  # "1", "5", or "10"
+    retrieval_metric = f"image_retrieval_recall@{k}"
+    suffix = "" if args.metric == "r1" else f"_{args.metric}"
+
     root = Path(__file__).resolve().parent / "results"
     if not root.exists():
         print(f"ERR: {root} not found", file=sys.stderr); sys.exit(1)
 
-    table = load_all(root)
-    summary = root / "benchmark_summary.csv"
-    aggregate = root / "benchmark_aggregate.csv"
+    table = load_all(root, retrieval_metric)
+    summary = root / f"benchmark_summary{suffix}.csv"
+    aggregate = root / f"benchmark_aggregate{suffix}.csv"
     write_summary(table, summary)
     write_aggregate(table, aggregate)
     print(f"wrote {summary}")

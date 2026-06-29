@@ -1,0 +1,221 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.6in]{geometry}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage[table]{xcolor}
+
+\definecolor{bestrow}{RGB}{220,230,255}
+
+\begin{document}
+
+% ────────────────────────────────────────────────────────────────────────────
+%  Table 2: Per-language — each language has R@1 / R@5 / R@10 sub-columns
+% ────────────────────────────────────────────────────────────────────────────
+
+\begin{table}[h!]
+\centering
+\setlength{\tabcolsep}{3pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{l c
+  ccc ccc ccc ccc ccc ccc ccc
+  ccc}
+\toprule
+\multirow{2}{*}{\textbf{Model}}
+  & \multirow{2}{*}{\textbf{\#Params}}
+  & \multicolumn{3}{c}{\textbf{Thai}}
+  & \multicolumn{3}{c}{\textbf{Myanmar}}
+  & \multicolumn{3}{c}{\textbf{Malay}}
+  & \multicolumn{3}{c}{\textbf{Indonesia}}
+  & \multicolumn{3}{c}{\textbf{Javanese}}
+  & \multicolumn{3}{c}{\textbf{Sundanese}}
+  & \multicolumn{3}{c}{\textbf{Vietnamese}}
+  & \multicolumn{3}{c}{\textbf{Avg}} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}\cmidrule(lr){9-11}\cmidrule(lr){12-14}
+\cmidrule(lr){15-17}\cmidrule(lr){18-20}\cmidrule(lr){21-23}\cmidrule(lr){24-26}
+  & & @1 & @5 & @10
+    & @1 & @5 & @10
+    & @1 & @5 & @10
+    & @1 & @5 & @10
+    & @1 & @5 & @10
+    & @1 & @5 & @10
+    & @1 & @5 & @10
+    & @1 & @5 & @10 \\
+\midrule
+Teacher & $85.80+499.50$
+  & \textit{45.0} & \textit{65.4} & \textit{72.2}
+  & \textit{25.1} & \textit{40.8} & \textit{48.8}
+  & \textit{52.8} & \textit{70.2} & \textit{75.2}
+  & \textit{58.2} & \textit{76.2} & \textit{82.1}
+  & \textit{32.0} & \textit{48.2} & \textit{56.5}
+  & \textit{25.8} & \textit{40.9} & \textit{48.5}
+  & \textit{54.0} & \textit{73.8} & \textit{79.9}
+  & \textit{41.8} & \textit{59.4} & \textit{66.2} \\
+\midrule
+CLIP-KD & $5.62+40.49$
+  & 0.1 & 0.5 & 0.8
+  & 0.1 & 0.6 & 1.2
+  & 3.1 & 4.9 & 6.3
+  & 3.7 & 6.2 & 8.0
+  & 3.7 & 7.0 & 9.4
+  & 3.8 & 7.2 & 10.6
+  & 0.8 & 1.1 & 1.4
+  & 2.2 & 3.9 & 5.4 \\
+TinyCLIP & $8.15+15.04$
+  & 0.0 & 0.4 & 0.9
+  & 0.3 & 1.0 & 1.3
+  & 3.0 & 5.0 & 6.7
+  & 3.7 & 6.8 & 8.9
+  & 4.2 & 7.0 & 9.6
+  & 3.8 & 7.7 & 11.2
+  & 1.7 & 2.7 & 3.9
+  & 2.4 & 4.4 & 6.1 \\
+MobileCLIP2 & $11.41+63.43$
+  & 0.5 & 1.0 & 1.4
+  & 0.6 & 1.7 & 2.5
+  & 11.9 & 23.5 & 29.9
+  & \textbf{27.2} & \textbf{42.8} & \textbf{50.6}
+  & \textbf{14.7} & \textbf{24.6} & \textbf{30.3}
+  & \textbf{8.4} & \textbf{17.6} & \textbf{24.1}
+  & 1.8 & 4.0 & 5.1
+  & 9.3 & 16.5 & 20.6 \\
+\midrule
+SEA-CLIP-Tiny (CC12M) & $5.62+40.49$
+  & 0.1 & 0.4 & 0.5
+  & 0.2 & 0.8 & 1.1
+  & 2.6 & 4.1 & 5.5
+  & 3.0 & 5.3 & 7.2
+  & 3.1 & 6.0 & 8.0
+  & 2.8 & 6.2 & 8.8
+  & 0.9 & 1.4 & 1.9
+  & 1.8 & 3.4 & 4.7 \\
+SEA-CLIP-Tiny (SEA-only) & $5.62+40.49$
+  & 0.3 & 1.3 & 2.1
+  & 0.4 & 0.7 & 1.1
+  & 1.0 & 2.0 & 3.3
+  & 0.7 & 2.3 & 3.6
+  & 0.8 & 1.5 & 2.6
+  & 0.9 & 1.7 & 2.6
+  & 0.5 & 1.5 & 2.9
+  & 0.7 & 1.6 & 2.6 \\
+\rowcolor{bestrow}
+\textbf{SEA-CLIP-Tiny (CC12M+SEA)} & $5.62+40.49$
+  & \textbf{3.9} & \textbf{11.0} & \textbf{16.4}
+  & \textbf{1.7} & \textbf{3.0} & \textbf{4.5}
+  & \textbf{14.5} & \textbf{28.6} & \textbf{36.1}
+  & 15.4 & 32.3 & 41.7
+  & 11.1 & 19.3 & 25.0
+  & 7.9 & 15.3 & 19.7
+  & \textbf{12.5} & \textbf{26.0} & \textbf{34.5}
+  & \textbf{9.6} & \textbf{19.4} & \textbf{25.4} \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Per-language retrieval performance (mean image$\to$text R@$k$ across
+  Babel-IN, XM3600, Flickr30k-200, XTD-200), reported as \%.
+  \textbf{Bold} = best among student models per column.}
+\label{tab:per_language_rk}
+\end{table}
+
+\bigskip
+
+% ────────────────────────────────────────────────────────────────────────────
+%  Table 3: Per-task — each retrieval benchmark has R@1 / R@5 / R@10 sub-cols
+% ────────────────────────────────────────────────────────────────────────────
+
+\begin{table}[h!]
+\centering
+\setlength{\tabcolsep}{3pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{l c c ccc ccc ccc ccc c ccc}
+\toprule
+\multirow{2}{*}{\textbf{Model}}
+  & \multirow{2}{*}{\textbf{\#Params}}
+  & \multirow{2}{*}{\textbf{Babel-IN}}
+  & \multicolumn{3}{c}{\textbf{XM3600}}
+  & \multicolumn{3}{c}{\textbf{Flickr30k}}
+  & \multicolumn{3}{c}{\textbf{XTD-200}}
+  & \multicolumn{3}{c}{\textbf{Retrieval Avg}}
+  & \multirow{2}{*}{\textbf{CVQA}}
+  & \multicolumn{3}{c}{\textbf{Total Avg}} \\
+\cmidrule(lr){4-6}\cmidrule(lr){7-9}\cmidrule(lr){10-12}\cmidrule(lr){13-15}\cmidrule(lr){17-19}
+  & & (acc@1)
+  & @1 & @5 & @10
+  & @1 & @5 & @10
+  & @1 & @5 & @10
+  & @1 & @5 & @10
+  &
+  & @1 & @5 & @10 \\
+\midrule
+Teacher & $85.80+499.50$
+  & \textit{42.4}
+  & \textit{52.6} & \textit{78.5} & \textit{86.8}
+  & \textit{45.0} & \textit{68.0} & \textit{76.1}
+  & \textit{38.1} & \textit{64.8} & \textit{76.4}
+  & \textit{44.5} & \textit{63.4} & \textit{70.4}
+  & \textit{50.4}
+  & \textit{47.5} & \textit{56.9} & \textit{60.4} \\
+\midrule
+CLIP-KD & $5.62+40.49$
+  & 4.2
+  & 0.7 & 1.8 & 2.5
+  & 1.1 & 2.9 & 4.4
+  & 1.7 & 5.1 & 8.0
+  & 1.9 & 3.5 & 4.8
+  & 26.3
+  & 14.1 & 14.9 & 15.5 \\
+TinyCLIP & $8.15+15.04$
+  & 4.4
+  & 1.0 & 2.8 & 3.8
+  & 1.5 & 3.6 & 5.6
+  & 1.6 & 5.2 & 8.6
+  & 2.1 & 4.0 & 5.6
+  & 27.8
+  & 15.0 & 15.9 & 16.7 \\
+MobileCLIP2 & $11.41+63.43$
+  & 8.1
+  & 9.2 & 17.3 & 20.8
+  & \textbf{9.2} & \textbf{18.0} & \textbf{23.2}
+  & \textbf{10.9} & \textbf{22.7} & \textbf{29.6}
+  & 9.4 & 16.5 & 20.4
+  & \textbf{32.6}
+  & 21.0 & 24.6 & 26.5 \\
+\midrule
+SEA-CLIP-Tiny (CC12M) & $5.62+40.49$
+  & 4.0
+  & 0.7 & 1.7 & 2.5
+  & 0.7 & 2.5 & 3.8
+  & 1.1 & 4.0 & 6.6
+  & 1.6 & 3.1 & 4.2
+  & 26.5
+  & 14.0 & 14.8 & 15.4 \\
+SEA-CLIP-Tiny (SEA-only) & $5.62+40.49$
+  & 1.2
+  & 0.3 & 1.6 & 2.9
+  & 0.3 & 1.3 & 2.4
+  & 0.6 & 2.3 & 4.1
+  & 0.6 & 1.6 & 2.7
+  & 25.6
+  & 13.1 & 13.6 & 14.1 \\
+\rowcolor{bestrow}
+\textbf{SEA-CLIP-Tiny (CC12M+SEA)} & $5.62+40.49$
+  & \textbf{14.7}
+  & \textbf{10.3} & \textbf{28.0} & \textbf{37.8}
+  & 5.8 & 16.5 & 23.1
+  & 8.4 & 24.8 & 35.5
+  & \textbf{9.8} & \textbf{21.0} & \textbf{27.8}
+  & 26.4
+  & \textbf{18.1} & \textbf{23.7} & \textbf{27.1} \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Per-task SEA performance, reported as \%.
+  Babel-IN = image classification acc@1;
+  XM3600, Flickr30k, XTD-200 = image$\to$text R@$k$; CVQA = acc1 (LOCAL).
+  \textbf{Retrieval Avg} \& \textbf{Total Avg} = mean over retrieval benchmarks (+ CVQA).
+  \textbf{Bold} = best among student models per column.}
+\label{tab:per_task_rk}
+\end{table}
+
+\end{document}
