@@ -84,6 +84,9 @@ MC2V3_E32_CKPT="$MC2V3_DIR/epoch_32.pt"
 # Ashpun selflearn_mammoth_v1: ViT-T-16, no KD (contrastive loss only),
 # trained on SEA blend (CG-OE-filt×6 + WIT-hf-base×6) + CC12M + Bloom multilingual, 32ep.
 SELFLEARN_MAMMOTH_V1_DIR="/project/lt200394-thllmV/mkd-exp/open_clip/experiments/selflearn_multidata_mammoth_v1/selflearn_ViT-T-16_multidata_mammoth_v1/checkpoints"
+SELFLEARN_MAMMOTH_V1_E8_CKPT="$SELFLEARN_MAMMOTH_V1_DIR/epoch_8.pt"
+SELFLEARN_MAMMOTH_V1_E16_CKPT="$SELFLEARN_MAMMOTH_V1_DIR/epoch_16.pt"
+SELFLEARN_MAMMOTH_V1_E24_CKPT="$SELFLEARN_MAMMOTH_V1_DIR/epoch_24.pt"
 SELFLEARN_MAMMOTH_V1_E32_CKPT="$SELFLEARN_MAMMOTH_V1_DIR/epoch_32.pt"
 
 # --- timing helpers (source me, then call `stage` / `timed_run`) ---
