@@ -42,6 +42,8 @@ DEFAULT_TAGS = [
     # -- selflearn (no KD) epochs --
     "selflearn_mammoth_v1_e8", "selflearn_mammoth_v1_e16",
     "selflearn_mammoth_v1_e24", "selflearn_mammoth_v1_e32",
+    # -- teacher (upper bound) --
+    "metaclip2_b16",
     # -- ablation (placeholder, add when trained) --
     # "ablation_crd_e32", "ablation_icl_e32", "ablation_fd_e32",
 ]
@@ -57,6 +59,7 @@ TAG_LABELS = {
     "selflearn_mammoth_v1_e16":     "Selflearn (e16)",
     "selflearn_mammoth_v1_e24":     "Selflearn (e24)",
     "selflearn_mammoth_v1_e32":     "Selflearn (e32)",
+    "metaclip2_b16":                "Teacher (MC2-B16)",
     "ablation_crd_e8":              "Abl-CRD (e8)",
     "ablation_crd_e16":             "Abl-CRD (e16)",
     "ablation_crd_e24":             "Abl-CRD (e24)",
