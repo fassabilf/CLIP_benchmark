@@ -1,13 +1,13 @@
 #!/bin/bash
-# Phase B: run retrieval_from_emb_safe.py for the MetaCLIP2 teacher (metaclip2_b16).
+# Phase B: run retrieval_from_emb_safe.py for the MetaCLIP2 teacher (metaclip2, H-14 worldwide).
 # Run on a login/transfer node AFTER ad_metaclip2_enc_probe.sh (Phase A) finishes.
 #
 # Usage:
 #   bash runs/ad_metaclip2_retrieval_probe.sh
 # Monitor:
-#   tail -f nohup_retrieval_metaclip2_b16.out
+#   tail -f nohup_retrieval_metaclip2.out
 #
-# Output: ${EMB_ROOT}/metaclip2_b16/train_probe_summary.csv
+# Output: ${EMB_ROOT}/metaclip2/train_probe_summary.csv
 # Merge it into train_probe_curve_long_combined.csv to add the teacher row to the
 # train-probe table (analyze_train_probe.py picks up any tag present in the CSV).
 
@@ -16,9 +16,9 @@ set -uo pipefail
 SCRIPT="/project/lt200394-thllmV/kd_dataset/scripts/retrieval_from_emb_safe.py"
 EMB_ROOT="/project/lt200394-thllmV/kd_dataset/eval/train_probe/emb"
 
-TAGS=(metaclip2_b16)
+TAGS=(metaclip2)
 
-DRIVER_LOG="$(pwd)/nohup_retrieval_metaclip2_b16.out"
+DRIVER_LOG="$(pwd)/nohup_retrieval_metaclip2.out"
 
 run_one() {
   local TAG="$1"
