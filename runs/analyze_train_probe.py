@@ -60,6 +60,7 @@ TAG_LABELS = {
     "selflearn_mammoth_v1_e24":     "Selflearn (e24)",
     "selflearn_mammoth_v1_e32":     "Selflearn (e32)",
     "metaclip2_b16":                "Teacher (MC2-B16)",
+    "metaclip2":                    "Teacher (MC2-H14)",
     "ablation_crd_e8":              "Abl-CRD (e8)",
     "ablation_crd_e16":             "Abl-CRD (e16)",
     "ablation_crd_e24":             "Abl-CRD (e24)",

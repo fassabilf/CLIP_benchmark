@@ -1,5 +1,5 @@
 #!/bin/bash
-# Phase B: run retrieval_from_emb_safe.py for the MetaCLIP2 teacher (metaclip2_b16).
+# Phase B: run retrieval_from_emb_safe.py for the MetaCLIP2 teacher (metaclip2_b16, ViT-B-16-worldwide).
 # Run on a login/transfer node AFTER ad_metaclip2_enc_probe.sh (Phase A) finishes.
 #
 # Usage:
