@@ -1,0 +1,1 @@
+{"dataset": "babel_imagenet", "model": "ViT-T-16", "pretrained": "/project/lt200394-thllmV/mkd-exp/open_clip/experiments/selflearn_multidata_mammoth_v1/selflearn_ViT-T-16_multidata_mammoth_v1/checkpoints/epoch_8.pt", "task": "zeroshot_classification", "metrics": {"acc1": 0.14436, "acc5": 0.31366, "mean_per_class_recall": 0.14396}, "language": "en"}
