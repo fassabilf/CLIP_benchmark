@@ -23,8 +23,7 @@ from pathlib import Path
 # ── Defaults ──────────────────────────────────────────────────────────────────
 
 DEFAULT_CSV = (
-    Path(__file__).parent.parent
-    / "kd_dataset/eval/train_probe/train_probe_curve_long_combined.csv"
+    Path(__file__).parent / "results" / "train_probe" / "train_probe_curve_long_combined.csv"
 )
 
 # Langs excluded from means (too few samples / not main SEA langs)

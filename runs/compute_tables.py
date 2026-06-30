@@ -619,7 +619,7 @@ TRAINING_ROWS = [
     ("SEA-CLIP-Tiny-Bloom",            r"Bloom-only (21K)",                                     "mc2bloom_e32",             "mc2bloom_e32",             "searow"),
     ("SEA-CLIP-Tiny-CG",               r"CG-only (703K)",                                       "mc2cg_e32",                "mc2cg_e32",                "searow"),
     ("SEA-CLIP-Tiny w/o KD losses",    r"CC12M + CG-OE-filt + WIT-hf + Bloom \textit{(12.18M)}", "selflearn_mammoth_v1_e32", "selflearn_mammoth_v1_e32", "noKD"),
-    ("Teacher",                        r"---",                                                  None,                       "metaclip2_b16",            "teacher"),
+    ("Teacher",                        r"---",                                                  "metaclip2_b16",            "metaclip2_b16",            "teacher"),
 ]
 
 # train-probe dataset key per ablation column
