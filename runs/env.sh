@@ -89,6 +89,16 @@ SELFLEARN_MAMMOTH_V1_E16_CKPT="$SELFLEARN_MAMMOTH_V1_DIR/epoch_16.pt"
 SELFLEARN_MAMMOTH_V1_E24_CKPT="$SELFLEARN_MAMMOTH_V1_DIR/epoch_24.pt"
 SELFLEARN_MAMMOTH_V1_E32_CKPT="$SELFLEARN_MAMMOTH_V1_DIR/epoch_32.pt"
 
+# Habibi clipkd_multidata_mammoth_v1: ViT-T-16 <- MetaCLIP2-ViT-B-16-worldwide (clipkd distill),
+# same student config as MC2 family (CLIP-BPE, eval in mc2_eval_env, NOT open_clip_edit's
+# SigLIP2 ViT-T-16). Trained on CC12M + full SEA blend (CG-OE-filt×6 + WIT-hf-base×6 + Bloom)
+# + multilingual ml-train + mammoth_vl_sea, 32ep.
+MAMMOTH_KD_DIR="/project/lt200394-thllmV/mkd-exp/open_clip/experiments/clipkd_multidata_mammoth_v1/clipkd_ViT-T-16_from_MetaCLIP2-ViT-B-16-worldwide_multidata_mammoth_v1/checkpoints"
+MAMMOTH_KD_E8_CKPT="$MAMMOTH_KD_DIR/epoch_8.pt"
+MAMMOTH_KD_E16_CKPT="$MAMMOTH_KD_DIR/epoch_16.pt"
+MAMMOTH_KD_E24_CKPT="$MAMMOTH_KD_DIR/epoch_24.pt"
+MAMMOTH_KD_E32_CKPT="$MAMMOTH_KD_DIR/epoch_32.pt"
+
 # --- timing helpers (source me, then call `stage` / `timed_run`) ---
 # Usage in sweep scripts:
 #   stage "Babel-ImageNet (8 langs)"   # prints banner + start time
