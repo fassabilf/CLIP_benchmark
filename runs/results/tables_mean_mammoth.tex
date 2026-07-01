@@ -1,0 +1,149 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.5in]{geometry}
+\usepackage{booktabs,graphicx,multirow,colortbl,amsmath}
+\usepackage[table]{xcolor}
+\definecolor{bestrow}{RGB}{220,230,255}
+\begin{document}
+\small
+\begin{table}[h!]\centering\setlength{\tabcolsep}{3pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{l c ccc ccc ccc ccc ccc ccc ccc ccc}
+\toprule
+\multirow{2}{*}{\textbf{Model}} & \multirow{2}{*}{\textbf{\#Params}}
+  & \multicolumn{3}{c}{\textbf{Thai}}
+  & \multicolumn{3}{c}{\textbf{Myanmar}}
+  & \multicolumn{3}{c}{\textbf{Malay}}
+  & \multicolumn{3}{c}{\textbf{Indonesia}}
+  & \multicolumn{3}{c}{\textbf{Javanese}}
+  & \multicolumn{3}{c}{\textbf{Sundanese}}
+  & \multicolumn{3}{c}{\textbf{Vietnamese}}
+  & \multicolumn{3}{c}{\textbf{Avg}} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}\cmidrule(lr){9-11}\cmidrule(lr){12-14}\cmidrule(lr){15-17}\cmidrule(lr){18-20}\cmidrule(lr){21-23}\cmidrule(lr){24-26}
+  & & @1 & @5 & @10 & @1 & @5 & @10 & @1 & @5 & @10 & @1 & @5 & @10 & @1 & @5 & @10 & @1 & @5 & @10 & @1 & @5 & @10 & @1 & @5 & @10 \\
+\midrule
+Teacher & $85.80+499.50$
+  & \textit{46.5} & \textit{72.1} & \textit{80.9}
+  & \textit{26.3} & \textit{48.3} & \textit{58.8}
+  & \textit{53.6} & \textit{77.8} & \textit{85.0}
+  & \textit{59.2} & \textit{83.1} & \textit{89.5}
+  & \textit{32.5} & \textit{53.6} & \textit{63.2}
+  & \textit{25.8} & \textit{44.6} & \textit{54.1}
+  & \textit{55.6} & \textit{81.4} & \textit{88.5}
+  & \textit{42.8} & \textit{65.8} & \textit{74.3} \\
+\midrule
+CLIP-KD & $5.62+40.49$
+  & 0.2 & 0.6 & 1.1
+  & 0.3 & 1.3 & 2.3
+  & 3.4 & 7.3 & 9.7
+  & 4.0 & 8.6 & 11.4
+  & 4.1 & 9.4 & 13.3
+  & 4.3 & 10.3 & 16.1
+  & 1.1 & 2.3 & 3.3
+  & 2.5 & 5.7 & 8.2 \\
+TinyCLIP & $8.15+15.04$
+  & 0.1 & 0.5 & 1.0
+  & 0.6 & 1.9 & 3.0
+  & 3.6 & 7.8 & 10.7
+  & 4.4 & 9.6 & 12.8
+  & 4.9 & 10.4 & 14.2
+  & 4.6 & 11.1 & 16.4
+  & 2.0 & 4.3 & 5.8
+  & 2.9 & 6.5 & 9.1 \\
+MobileCLIP2 & $11.41+63.43$
+  & 0.9 & 1.9 & 2.9
+  & 1.2 & 3.1 & 4.6
+  & \textbf{22.1} & 39.4 & 48.0
+  & \textbf{30.4} & \textbf{51.9} & \textbf{61.1}
+  & \textbf{16.8} & \textbf{31.9} & \textbf{39.7}
+  & \textbf{15.8} & \textbf{29.3} & \textbf{38.0}
+  & 4.8 & 8.6 & 10.9
+  & 13.2 & 23.7 & 29.3 \\
+\midrule
+SEA-CLIP-Tiny (CC12M) & $5.62+40.49$
+  & 0.1 & 0.5 & 0.8
+  & 0.3 & 1.4 & 2.4
+  & 2.9 & 6.4 & 8.6
+  & 3.3 & 7.3 & 9.6
+  & 3.5 & 7.6 & 10.6
+  & 3.0 & 8.1 & 12.5
+  & 1.1 & 2.2 & 3.1
+  & 2.0 & 4.8 & 6.8 \\
+SEA-CLIP-Tiny (SEA-only) & $5.62+40.49$
+  & 0.3 & 1.7 & 2.9
+  & 0.4 & 1.5 & 2.9
+  & 0.9 & 3.0 & 5.2
+  & 0.7 & 2.9 & 4.9
+  & 0.9 & 3.0 & 5.2
+  & 0.9 & 3.6 & 6.6
+  & 0.6 & 2.2 & 4.0
+  & 0.7 & 2.6 & 4.5 \\
+\rowcolor{bestrow}
+\textbf{SEA-CLIP-Tiny (CC12M+SEA)} & $5.62+40.49$
+  & 4.5 & 14.2 & 21.3
+  & 1.9 & 5.9 & 9.3
+  & 15.4 & 35.7 & 46.0
+  & 16.4 & 38.1 & 49.5
+  & 11.7 & 25.8 & 33.6
+  & 8.4 & 19.1 & 26.4
+  & 13.3 & 32.0 & 43.0
+  & 10.2 & 24.4 & 32.7 \\
+SEA-CLIP-Tiny + ML + Mammoth-VL-SEA & $5.62+40.49$
+  & \textbf{13.0} & \textbf{30.8} & \textbf{40.8}
+  & \textbf{7.7} & \textbf{21.1} & \textbf{30.0}
+  & 20.9 & \textbf{45.7} & \textbf{57.5}
+  & 22.2 & 46.9 & 58.6
+  & 12.6 & 27.9 & 37.2
+  & 9.7 & 22.0 & 29.7
+  & \textbf{21.9} & \textbf{47.6} & \textbf{59.6}
+  & \textbf{15.4} & \textbf{34.6} & \textbf{44.8} \\
+\bottomrule\end{tabular}
+}
+\caption{Per-language performance (mean across Babel-IN acc@$k$, XM3600, Flickr30k-200, XTD-200 mean(I2T, T2I) R@$k$), reported as \%. \textbf{Bold} = best among student models per column.}
+\label{tab:per_language_rk_mean}
+\end{table}
+\bigskip
+\begin{table}[h!]\centering\setlength{\tabcolsep}{3pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{l c ccc ccc ccc ccc ccc c ccc}
+\toprule
+\multirow{2}{*}{\textbf{Model}} & \multirow{2}{*}{\textbf{\#Params}}
+  & \multicolumn{3}{c}{\textbf{Babel-IN}}
+  & \multicolumn{3}{c}{\textbf{XM3600}}
+  & \multicolumn{3}{c}{\textbf{Flickr30k}}
+  & \multicolumn{3}{c}{\textbf{XTD-200}}
+  & \multicolumn{3}{c}{\textbf{Retrieval Avg}}
+  & \multirow{2}{*}{\textbf{CVQA}}
+  & \multicolumn{3}{c}{\textbf{Total Avg}} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}\cmidrule(lr){9-11}\cmidrule(lr){12-14}\cmidrule(lr){15-17}\cmidrule(lr){19-21}
+  & & @1 & @5 & @10 & @1 & @5 & @10 & @1 & @5 & @10 & @1 & @5 & @10 & @1 & @5 & @10 & & @1 & @5 & @10 \\
+\midrule
+Teacher & $85.80+499.50$
+  & \textit{42.3} & \textit{61.3} & \textit{67.8} & \textit{55.7} & \textit{81.4} & \textit{88.8} & \textit{46.0} & \textit{69.3} & \textit{77.0} & \textit{39.2} & \textit{65.8} & \textit{77.0} & \textit{45.8} & \textit{69.5} & \textit{77.7} & \textit{48.6} & \textit{46.4} & \textit{65.3} & \textit{71.9} \\
+\midrule
+CLIP-KD & $5.62+40.49$
+  & 4.2 & 7.7 & 10.5 & 1.1 & 2.6 & 3.5 & 1.5 & 3.7 & 5.4 & 2.2 & 6.2 & 9.4 & 2.2 & 5.1 & 7.2 & 25.9 & 7.0 & 9.2 & 10.9 \\
+TinyCLIP & $8.15+15.04$
+  & 4.4 & 8.2 & 10.8 & 1.6 & 3.7 & 4.9 & 2.1 & 4.7 & 6.8 & 2.4 & 7.1 & 10.5 & 2.6 & 5.9 & 8.2 & 26.8 & 7.5 & 10.1 & 12.0 \\
+MobileCLIP2 & $11.41+63.43$
+  & 15.6 & 23.5 & 27.5 & 11.7 & 20.8 & 24.6 & 11.2 & 22.0 & 27.5 & 12.9 & 25.8 & 33.1 & 12.8 & 23.0 & 28.2 & \textbf{33.5} & 17.0 & 25.1 & 29.2 \\
+\midrule
+SEA-CLIP-Tiny (CC12M) & $5.62+40.49$
+  & 4.0 & 7.4 & 9.7 & 0.8 & 2.0 & 2.7 & 1.0 & 3.0 & 4.2 & 1.4 & 4.5 & 7.3 & 1.8 & 4.2 & 6.0 & 25.5 & 6.5 & 8.5 & 9.9 \\
+SEA-CLIP-Tiny (SEA-only) & $5.62+40.49$
+  & 1.2 & 4.3 & 7.3 & 0.4 & 1.5 & 3.0 & 0.3 & 1.3 & 2.5 & 0.6 & 2.4 & 4.2 & 0.6 & 2.4 & 4.2 & 26.9 & 5.9 & 7.3 & 8.8 \\
+\rowcolor{bestrow}
+\textbf{SEA-CLIP-Tiny (CC12M+SEA)} & $5.62+40.49$
+  & 14.7 & 29.0 & 36.4 & 11.1 & 28.9 & 38.8 & 6.8 & 17.7 & 24.4 & 9.4 & 26.2 & 36.9 & 10.5 & 25.4 & 34.1 & 29.1 & 14.2 & 26.2 & 33.1 \\
+SEA-CLIP-Tiny + ML + Mammoth-VL-SEA & $5.62+40.49$
+  & \textbf{17.2} & \textbf{33.3} & \textbf{40.9} & \textbf{20.0} & \textbf{44.5} & \textbf{56.1} & \textbf{13.0} & \textbf{30.5} & \textbf{39.4} & \textbf{15.7} & \textbf{38.8} & \textbf{52.7} & \textbf{16.5} & \textbf{36.8} & \textbf{47.3} & 26.4 & \textbf{18.5} & \textbf{34.7} & \textbf{43.1} \\
+\bottomrule\end{tabular}
+}
+\caption{Per-task SEA performance, reported as \%.
+  Babel-IN = acc@$k$ (SEA-lang avg); XM3600, Flickr30k, XTD-200 = mean(I2T, T2I) R@$k$;
+  CVQA = acc@1 (LOCAL, SEA-7 subset).
+  \textbf{Retrieval Avg} = mean(Babel-IN, XM3600, Flickr30k, XTD-200).
+  \textbf{Total Avg} = equal-weight mean over all 5 tasks.
+  \textbf{Bold} = best student per column.}
+\label{tab:per_task_rk_mean}
+\end{table}
+\end{document}

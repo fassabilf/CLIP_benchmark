@@ -350,6 +350,8 @@ def main():
                         help="Print the filled dataset-ablation table (tab:training) LaTeX")
     parser.add_argument("--selflearn-tables", action="store_true",
                         help="Generate a SEPARATE PDF of per-lang + per-task tables that include the selflearn (w/o KD) row")
+    parser.add_argument("--mammoth-tables", action="store_true",
+                        help="Generate a SEPARATE PDF of per-lang + per-task tables that include the clipkd_mammoth_v1 (KD + ML + Mammoth-VL-SEA) row")
     args = parser.parse_args()
 
     if args.training:
@@ -359,6 +361,11 @@ def main():
     if args.selflearn_tables:
         print(f"Generating selflearn tables (direction={args.direction}, CVQA={args.cvqa}) ...")
         gen_selflearn_pdf(args.direction, args.cvqa)
+        return
+
+    if args.mammoth_tables:
+        print(f"Generating mammoth tables (direction={args.direction}, CVQA={args.cvqa}) ...")
+        gen_mammoth_pdf(args.direction, args.cvqa)
         return
 
     if args.gen_pdfs:
@@ -619,6 +626,7 @@ TRAINING_ROWS = [
     ("SEA-CLIP-Tiny-Bloom",            r"Bloom-only (21K)",                                     "mc2bloom_e32",             "mc2bloom_e32",             "searow"),
     ("SEA-CLIP-Tiny-CG",               r"CG-only (703K)",                                       "mc2cg_e32",                "mc2cg_e32",                "searow"),
     ("SEA-CLIP-Tiny w/o KD losses",    r"CC12M + CG-OE-filt + WIT-hf + Bloom \textit{(12.18M)}", "selflearn_mammoth_v1_e32", "selflearn_mammoth_v1_e32", "noKD"),
+    ("SEA-CLIP-Tiny + ML + Mammoth-VL-SEA", r"CC12M + CG-OE-filt + WIT-hf + Bloom + ML + Mammoth-VL-SEA \textit{(12.87M)}", "clipkd_mammoth_v1_e32", "clipkd_mammoth_v1_e32", "mammothKD"),
     ("Teacher",                        r"---",                                                  "metaclip2_b16",            "metaclip2_b16",            "teacher"),
 ]
 
@@ -785,6 +793,28 @@ def gen_selflearn_pdf(direction: str = "mean", cvqa: str = "sea7"):
     subprocess.run(["pdflatex", "-interaction=nonstopmode", out.name],
                    cwd=RESULTS_DIR, capture_output=True)
     print(f"  wrote {out.name}  +  compiled tables_{direction}_selflearn.pdf")
+
+
+def gen_mammoth_pdf(direction: str = "mean", cvqa: str = "sea7"):
+    """Per-language + per-task tables INCLUDING the clipkd_mammoth_v1 (KD + ML +
+    Mammoth-VL-SEA) row.
+
+    Written to a SEPARATE file (tables_<dir>_mammoth.{tex,pdf}) so the main
+    tables_<dir>.{tex,pdf} stay untouched.
+    """
+    import subprocess
+    global MODELS
+    saved = MODELS
+    MODELS = saved + [("clipkd_mammoth_v1_e32", "SEA-CLIP-Tiny + ML + Mammoth-VL-SEA", False)]
+    try:
+        tex = generate_tex(direction, cvqa)
+    finally:
+        MODELS = saved
+    out = RESULTS_DIR / f"tables_{direction}_mammoth.tex"
+    out.write_text(tex)
+    subprocess.run(["pdflatex", "-interaction=nonstopmode", out.name],
+                   cwd=RESULTS_DIR, capture_output=True)
+    print(f"  wrote {out.name}  +  compiled tables_{direction}_mammoth.pdf")
 
 
 def gen_all_pdfs(cvqa_variant: str = "sea7"):
