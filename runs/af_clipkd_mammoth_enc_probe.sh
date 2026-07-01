@@ -11,16 +11,20 @@
 #SBATCH -e /lustrefs/disk/project/lt200394-thllmV/benchmark/CLIP_benchmark/runs/logs/%x_%A_%a.out
 
 # Phase A: encode clipkd_multidata_mammoth_v1 checkpoints (e8/e16/e24/e32) over the same SEA
-# training shards used for the other mc2-family probes (bloom + cgoe x6 + wit x6 = 13 entries
-# per epoch). 4 epochs x 13 entries = 52 tasks, <=10 concurrent.
+# training shards used for the selflearn_mammoth_v1 probe (bloom + cgoe x6 + wit x6 = 13
+# entries per epoch). 4 epochs x 13 entries = 52 tasks, <=10 concurrent.
+# Checkpoint's token_embedding is vocab=256000 (SigLIP2 HFTokenizer), same student config as
+# its no-KD sibling selflearn_mammoth_v1 -> use mteb_env2, NOT mc2_eval_env (CLIP-BPE 49408
+# config used by the true metaclip2_kd family) -> size mismatch on token_embedding.weight.
 # Encoder auto-skips existing .npz -> safe to resubmit.
-# After all tasks finish, run runs/s_phase_b_retrieval.sh (Phase B) to get cos/R@1 — it
-# iterates every tag dir under EMB_ROOT automatically, no changes needed there.
+# After all tasks finish, run runs/ac_selflearn_retrieval_probe.sh-style Phase B (or
+# runs/s_phase_b_retrieval.sh, which iterates every tag dir under EMB_ROOT automatically) to
+# get cos/R@1 — no script changes needed there.
 
 set -euo pipefail
 source /lustrefs/disk/project/lt200394-thllmV/benchmark/CLIP_benchmark/runs/env.sh
 module load Mamba/23.11.0-0
-source activate mc2_eval_env
+source activate mteb_env2
 
 ENC=/lustrefs/disk/project/lt200394-thllmV/kd_dataset/scripts/encode_train_embeddings.py
 EMB_ROOT=/lustrefs/disk/project/lt200394-thllmV/kd_dataset/eval/train_probe/emb
