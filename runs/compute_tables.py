@@ -625,8 +625,8 @@ TRAINING_ROWS = [
     ("SEA-CLIP-Tiny-WIT",              r"WIT-hf-base (487K)",                                   "mc2wit_e32",               "mc2wit_e32",               "searow"),
     ("SEA-CLIP-Tiny-Bloom",            r"Bloom-only (21K)",                                     "mc2bloom_e32",             "mc2bloom_e32",             "searow"),
     ("SEA-CLIP-Tiny-CG",               r"CG-only (703K)",                                       "mc2cg_e32",                "mc2cg_e32",                "searow"),
-    ("SEA-CLIP-Tiny w/o KD losses",    r"CC12M + CG-OE-filt + WIT-hf + Bloom \textit{(12.18M)}", "selflearn_mammoth_v1_e32", "selflearn_mammoth_v1_e32", "noKD"),
-    ("SEA-CLIP-Tiny + ML + Mammoth-VL-SEA", r"CC12M + CG-OE-filt + WIT-hf + Bloom + ML + Mammoth-VL-SEA \textit{(12.87M)}", "clipkd_mammoth_v1_e32", "clipkd_mammoth_v1_e32", "mammothKD"),
+    ("SEA-CLIP-Tiny w/o KD losses",    r"CC12M + CG-OE-filt + WIT-hf + ML \textit{(12.33M)}", "selflearn_mammoth_v1_e32", "selflearn_mammoth_v1_e32", "noKD"),
+    ("SEA-CLIP-Tiny + ML + Mammoth-VL-SEA", r"CC12M + CG-OE-filt + WIT-hf + ML + Mammoth-VL-SEA \textit{(12.87M)}", "clipkd_mammoth_v1_e32", "clipkd_mammoth_v1_e32", "mammothKD"),
     ("Teacher",                        r"---",                                                  "metaclip2_b16",            "metaclip2_b16",            "teacher"),
 ]
 

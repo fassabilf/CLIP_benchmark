@@ -13,7 +13,7 @@
 # Full eval suite (all standard benchmarks, excluding WorldCuisines) for
 # clipkd_multidata_mammoth_v1: ViT-T-16 student distilled (clipkd loss) from
 # MetaCLIP2-ViT-B-16-worldwide, trained on CC12M + full SEA multilingual blend
-# (CG-OE-filt x6 + WIT-hf-base x6 + Bloom) + multilingual ml-train + mammoth_vl_sea, 32ep.
+# (CG-OE-filt x6 + WIT-hf-base x6, no Bloom) + multilingual ml-train + mammoth_vl_sea, 32ep.
 # Checkpoint's token_embedding is vocab=256000 (SigLIP2 HFTokenizer), same student config
 # as its no-KD sibling selflearn_mammoth_v1 -> eval with arch "ViT-T-16" from mteb_env2
 # (open_clip_edit). Do NOT use mc2_eval_env (that's the CLIP-BPE 49408-vocab config used by
