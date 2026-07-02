@@ -100,6 +100,16 @@ MAMMOTH_KD_E16_CKPT="$MAMMOTH_KD_DIR/epoch_16.pt"
 MAMMOTH_KD_E24_CKPT="$MAMMOTH_KD_DIR/epoch_24.pt"
 MAMMOTH_KD_E32_CKPT="$MAMMOTH_KD_DIR/epoch_32.pt"
 
+# Habibi ckdonly_v1: ViT-T-16 <- MetaCLIP2-ViT-B-16-worldwide (clipkd distill only, no FD/ICL),
+# same student config as the mc2 family (CLIP-BPE vocab 49408 ctx 77, eval in mc2_eval_env,
+# NOT open_clip_edit's SigLIP2 ViT-T-16). Trained on CC12M + full SEA blend (CG-OE-filt×6 +
+# WIT-hf-base×6 + Bloom) + mammoth_vl_sea, 32ep.
+CKDONLY_V1_DIR="/project/lt200394-thllmV/mkd-exp/open_clip/experiments/ckdonly_v1/ckdonly_ViT-T-16_metaclip2_v1/checkpoints"
+CKDONLY_V1_E8_CKPT="$CKDONLY_V1_DIR/epoch_8.pt"
+CKDONLY_V1_E16_CKPT="$CKDONLY_V1_DIR/epoch_16.pt"
+CKDONLY_V1_E24_CKPT="$CKDONLY_V1_DIR/epoch_24.pt"
+CKDONLY_V1_E32_CKPT="$CKDONLY_V1_DIR/epoch_32.pt"
+
 # --- timing helpers (source me, then call `stage` / `timed_run`) ---
 # Usage in sweep scripts:
 #   stage "Babel-ImageNet (8 langs)"   # prints banner + start time
