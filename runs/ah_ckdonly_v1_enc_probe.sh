@@ -13,15 +13,16 @@
 # Phase A: encode ckdonly_v1 checkpoints (e8/e16/e24/e32) over the same SEA training shards
 # used for the mc2/mammoth probes (bloom + cgoe x6 + wit x6 = 13 entries per epoch).
 # 4 epochs x 13 entries = 52 tasks, <=10 concurrent.
-# Student is CLIP-BPE (vocab 49408 ctx 77), eval with arch "ViT-T-16" from mc2_eval_env
-# (habibi's open_clip, NOT open_clip_edit where ViT-T-16 is the SigLIP2 config).
+# Checkpoint's token_embedding is vocab=256000 (SigLIP2 HFTokenizer), same student config
+# as its mammoth-family siblings -> use mteb_env2, NOT mc2_eval_env (CLIP-BPE 49408 config
+# used by the true metaclip2_kd family) -> size mismatch on token_embedding.weight.
 # Encoder auto-skips existing .npz -> safe to resubmit.
 # After all tasks finish, run runs/ah_ckdonly_v1_retrieval_probe.sh (Phase B) to get cos/R@1.
 
 set -euo pipefail
 source /lustrefs/disk/project/lt200394-thllmV/benchmark/CLIP_benchmark/runs/env.sh
 module load Mamba/23.11.0-0
-source activate mc2_eval_env
+source activate mteb_env2
 
 ENC=/lustrefs/disk/project/lt200394-thllmV/kd_dataset/scripts/encode_train_embeddings.py
 EMB_ROOT=/lustrefs/disk/project/lt200394-thllmV/kd_dataset/eval/train_probe/emb

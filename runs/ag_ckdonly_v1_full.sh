@@ -13,15 +13,17 @@
 # Full eval suite for Habibi's ckdonly_v1 run: ViT-T-16 student distilled (clipkd loss only,
 # no FD/ICL) from MetaCLIP2-ViT-B-16-worldwide, trained on CC12M + full SEA multilingual blend
 # (CG-OE-filt x6 + WIT-hf-base x6 + Bloom) + mammoth_vl_sea, 32ep.
-# Student is CLIP-BPE (vocab 49408 ctx 77), eval with arch "ViT-T-16" from mc2_eval_env
-# (habibi's open_clip, NOT open_clip_edit where ViT-T-16 is the SigLIP2 config).
+# Checkpoint's token_embedding is vocab=256000 (SigLIP2 HFTokenizer), same student config
+# as its mammoth-family siblings -> eval with arch "ViT-T-16" from mteb_env2 (open_clip_edit).
+# Do NOT use mc2_eval_env (that's the CLIP-BPE 49408-vocab config used by the true metaclip2_kd
+# family) -> size mismatch on token_embedding.weight.
 # Array: 1=epoch_8, 2=epoch_16, 3=epoch_24, 4=epoch_32.
 
 set -euo pipefail
 source /lustrefs/disk/project/lt200394-thllmV/benchmark/CLIP_benchmark/runs/env.sh
 
 module load Mamba/23.11.0-0
-source activate mc2_eval_env
+source activate mteb_env2
 
 case "$SLURM_ARRAY_TASK_ID" in
     1) TAG="ckdonly_v1_e8";  MODEL="ViT-T-16"; CKPT="$CKDONLY_V1_E8_CKPT" ;;
