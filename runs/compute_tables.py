@@ -352,6 +352,8 @@ def main():
                         help="Generate a SEPARATE PDF of per-lang + per-task tables that include the selflearn (w/o KD) row")
     parser.add_argument("--mammoth-tables", action="store_true",
                         help="Generate a SEPARATE PDF of per-lang + per-task tables that include the clipkd_mammoth_v1 (KD + ML + Mammoth-VL-SEA) row")
+    parser.add_argument("--ckdonly-tables", action="store_true",
+                        help="Generate SEPARATE PDFs (t2i, i2t, mean) of per-lang + per-task tables that include the ckdonly_v1 (clipkd loss only) row")
     args = parser.parse_args()
 
     if args.training:
@@ -366,6 +368,12 @@ def main():
     if args.mammoth_tables:
         print(f"Generating mammoth tables (direction={args.direction}, CVQA={args.cvqa}) ...")
         gen_mammoth_pdf(args.direction, args.cvqa)
+        return
+
+    if args.ckdonly_tables:
+        print(f"Generating ckdonly tables (t2i, i2t, mean; CVQA={args.cvqa}) ...")
+        for direction in ["t2i", "i2t", "mean"]:
+            gen_ckdonly_pdf(direction, args.cvqa)
         return
 
     if args.gen_pdfs:
@@ -627,6 +635,7 @@ TRAINING_ROWS = [
     ("SEA-CLIP-Tiny-CG",               r"CG-only (703K)",                                       "mc2cg_e32",                "mc2cg_e32",                "searow"),
     ("SEA-CLIP-Tiny w/o KD losses",    r"CC12M + CG-OE-filt + WIT-hf + ML \textit{(12.33M)}", "selflearn_mammoth_v1_e32", "selflearn_mammoth_v1_e32", "noKD"),
     ("SEA-CLIP-Tiny + ML + Mammoth-VL-SEA", r"CC12M + CG-OE-filt + WIT-hf + ML + Mammoth-VL-SEA \textit{(12.87M)}", "clipkd_mammoth_v1_e32", "clipkd_mammoth_v1_e32", "mammothKD"),
+    ("SEA-CLIP-Tiny (CKD only)",       r"CC12M + CG-OE-filt + WIT-hf + Bloom + Mammoth-VL-SEA \textit{(12.87M)}", "ckdonly_v1_e32", "ckdonly_v1_e32", "ckdKD"),
     ("Teacher",                        r"---",                                                  "metaclip2_b16",            "metaclip2_b16",            "teacher"),
 ]
 
@@ -815,6 +824,28 @@ def gen_mammoth_pdf(direction: str = "mean", cvqa: str = "sea7"):
     subprocess.run(["pdflatex", "-interaction=nonstopmode", out.name],
                    cwd=RESULTS_DIR, capture_output=True)
     print(f"  wrote {out.name}  +  compiled tables_{direction}_mammoth.pdf")
+
+
+def gen_ckdonly_pdf(direction: str = "mean", cvqa: str = "sea7"):
+    """Per-language + per-task tables INCLUDING the ckdonly_v1 (clipkd loss only,
+    no FD/ICL) row.
+
+    Written to a SEPARATE file (tables_<dir>_ckdonly.{tex,pdf}) so the main
+    tables_<dir>.{tex,pdf} stay untouched.
+    """
+    import subprocess
+    global MODELS
+    saved = MODELS
+    MODELS = saved + [("ckdonly_v1_e32", "SEA-CLIP-Tiny (CKD only)", False)]
+    try:
+        tex = generate_tex(direction, cvqa)
+    finally:
+        MODELS = saved
+    out = RESULTS_DIR / f"tables_{direction}_ckdonly.tex"
+    out.write_text(tex)
+    subprocess.run(["pdflatex", "-interaction=nonstopmode", out.name],
+                   cwd=RESULTS_DIR, capture_output=True)
+    print(f"  wrote {out.name}  +  compiled tables_{direction}_ckdonly.pdf")
 
 
 def gen_all_pdfs(cvqa_variant: str = "sea7"):
