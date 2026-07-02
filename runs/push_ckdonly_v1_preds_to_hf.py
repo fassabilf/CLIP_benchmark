@@ -12,7 +12,7 @@ Usage:
 import argparse
 import os
 from pathlib import Path
-from huggingface_hub import HfApi, create_repo
+from huggingface_hub import HfApi
 
 REPO_ID = "fassabilf/sea-clip-eval-predictions"
 REPO_TYPE = "dataset"
@@ -26,9 +26,10 @@ def main():
     parser.add_argument("--token", default=os.environ.get("HF_TOKEN", None))
     args = parser.parse_args()
 
+    # Repo already exists (fassabilf/sea-clip-eval-predictions); skip create_repo
+    # since fine-grained tokens scoped to this repo can't call the repos/create
+    # endpoint (that needs a broader "create repos" permission).
     api = HfApi(token=args.token)
-    create_repo(repo_id=REPO_ID, repo_type=REPO_TYPE, token=args.token, exist_ok=True)
-    print(f"Repository ready: https://huggingface.co/datasets/{REPO_ID}")
 
     for tag in TAGS:
         preds_dir = RESULTS_DIR / tag / "preds"
