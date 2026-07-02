@@ -1,0 +1,1 @@
+{"dataset": "imagenet1k-unverified", "model": "ViT-T-16", "pretrained": "/project/lt200394-thllmV/mkd-exp/open_clip/experiments/ckdonly_v1/ckdonly_ViT-T-16_metaclip2_v1/checkpoints/epoch_32.pt", "task": "zeroshot_classification", "metrics": {"acc1": 0.31914, "acc5": 0.59128, "mean_per_class_recall": 0.31912}, "language": "en"}
