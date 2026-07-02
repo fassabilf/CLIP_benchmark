@@ -79,8 +79,15 @@ def main():
 
         total_params = sum(v.numel() for v in sd.values() if torch.is_tensor(v))
         visual_params = sum(v.numel() for k, v in sd.items() if torch.is_tensor(v) and k.startswith("visual."))
-        other_params = total_params - visual_params
-        print(f"  total params: {total_params:,}  (visual: {visual_params:,}, text+other: {other_params:,})")
+        tokenizer_params = w.numel()
+        text_params = total_params - visual_params - tokenizer_params
+
+        print("  param breakdown:")
+        print(f"    {'component':<10} {'params':>14} {'% of total':>11}")
+        for name, n in (("visual", visual_params), ("tokenizer", tokenizer_params), ("text", text_params)):
+            pct = 100 * n / total_params if total_params else 0.0
+            print(f"    {name:<10} {n:>14,} {pct:>10.1f}%")
+        print(f"    {'total':<10} {total_params:>14,} {100.0:>10.1f}%")
 
 
 if __name__ == "__main__":
