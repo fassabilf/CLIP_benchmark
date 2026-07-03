@@ -31,9 +31,9 @@ api.upload_large_folder(
         "clipkd_mammoth_bpe_v1_e32/preds/*.jsonl",
     ],
     # Default worker count (half of cpu cores, often 32-64 here) hammers HF's preupload
-    # endpoint hard enough to get stuck in a permanent 429 retry loop. Small worker count
-    # lets the backoff actually clear the rate limit.
-    num_workers=4,
+    # endpoint hard enough to get stuck in a permanent 429 retry loop. Single worker to be
+    # as gentle as possible on the rate limit.
+    num_workers=1,
 )
 
 print("Done! View at: https://huggingface.co/datasets/fassabilf/sea-clip-eval-predictions")
