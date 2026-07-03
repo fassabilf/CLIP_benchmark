@@ -6,28 +6,30 @@
 #SBATCH -t 04:00:00
 #SBATCH -A lt200394
 #SBATCH -J mammoth_enc_probe
-#SBATCH -a 0-9
+#SBATCH -a 0-7
 #SBATCH -o /lustrefs/disk/project/lt200394-thllmV/benchmark/CLIP_benchmark/runs/logs/%x_%A_%a.out
 #SBATCH -e /lustrefs/disk/project/lt200394-thllmV/benchmark/CLIP_benchmark/runs/logs/%x_%A_%a.out
 
 # Phase A: back-fill the "Mammoth R@1" train-probe column (tab:training) for every model
-# that is currently a row in Table 4. One array task per tag (10 total) -- each does a
-# single "mammoth" dataset job against mammoth_vl_sea_wds (109 flat shards, no per-lang
-# split, same shape as the existing bloom-all job).
+# that is currently a row in Table 4, EXCEPT selflearn_mammoth_v1 and ckdonly_v1 (both use
+# the SigLIP2/HFTokenizer 256000-vocab student -- out of scope for this backfill per
+# request; skip rather than debug that fork). One array task per tag (8 total) -- each
+# does a single "mammoth" dataset job against mammoth_vl_sea_wds (109 flat shards, no
+# per-lang split, same shape as the existing bloom-all job).
 #
 # Uses the PATCHED encoder ${CB_ROOT}/runs/encode_train_embeddings.py (adds the
 # hf_transformers path for the teacher) so we don't have to touch the shared
 # /project/lt200394-thllmV/kd_dataset/scripts/ copy.
 #
-# Conda env differs PER TAG, not just per family: ckdonly_v1 and the teacher are
-# SigLIP2/HF (mteb_env2); everything else in this list is the CLIP-BPE mc2 family
-# (mc2_eval_env). Mixing the wrong env in causes a token_embedding.weight shape
-# mismatch on checkpoint load (see runs/env.sh comments). Each array task is an
-# independent process, so activating a different env per case is safe here.
+# Conda env differs PER TAG: the teacher is SigLIP2/HF (mteb_env2); everything else in
+# this list is the CLIP-BPE mc2 family (mc2_eval_env). Mixing the wrong env in causes a
+# token_embedding.weight shape mismatch on checkpoint load (see runs/env.sh comments).
+# Each array task is an independent process, so activating a different env per case is
+# safe here.
 #
 # Encoder auto-skips existing .npz -> safe to resubmit.
 #
-# After all 10 tasks finish, run runs/y_retrieval_mammoth_probe.sh (Phase B).
+# After all 8 tasks finish, run runs/y_retrieval_mammoth_probe.sh (Phase B).
 
 set -euo pipefail
 source /lustrefs/disk/project/lt200394-thllmV/benchmark/CLIP_benchmark/runs/env.sh
@@ -44,9 +46,7 @@ case "$SLURM_ARRAY_TASK_ID" in
     4) TAG="mc2wit_e32";                 ENV="mc2_eval_env"; CKPT="$MC2WIT_E32_CKPT" ;;
     5) TAG="mc2bloom_e32";               ENV="mc2_eval_env"; CKPT="$MC2BLOOM_E32_CKPT" ;;
     6) TAG="mc2cg_e32";                  ENV="mc2_eval_env"; CKPT="$MC2CG_E32_CKPT" ;;
-    7) TAG="selflearn_mammoth_v1_e32";   ENV="mc2_eval_env"; CKPT="$SELFLEARN_MAMMOTH_V1_E32_CKPT" ;;
-    8) TAG="ckdonly_v1_e32";             ENV="mteb_env2";    CKPT="$CKDONLY_V1_E32_CKPT" ;;
-    9) TAG="metaclip2_b16";              ENV="mteb_env2";    CKPT="" ;;
+    7) TAG="metaclip2_b16";              ENV="mteb_env2";    CKPT="" ;;
     *) echo "unknown array idx"; exit 1 ;;
 esac
 
@@ -54,7 +54,7 @@ source activate "$ENV"
 
 echo "task=$SLURM_ARRAY_TASK_ID tag=$TAG env=$ENV"
 
-if [[ "$SLURM_ARRAY_TASK_ID" == "9" ]]; then
+if [[ "$SLURM_ARRAY_TASK_ID" == "7" ]]; then
     srun python "$ENC" \
         --model-type hf_transformers \
         --model "facebook/metaclip-2-worldwide-b16" --model-cache-dir "$HF_HUB_CACHE" \

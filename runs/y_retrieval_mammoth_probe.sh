@@ -26,8 +26,6 @@ TAGS=(
   mc2wit_e32
   mc2bloom_e32
   mc2cg_e32
-  selflearn_mammoth_v1_e32
-  ckdonly_v1_e32
   metaclip2_b16
 )
 
