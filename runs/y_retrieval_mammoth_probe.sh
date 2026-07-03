@@ -15,10 +15,11 @@
 
 set -uo pipefail
 
-# retrieval_from_emb_safe.py is pure CPU (numpy/torch/pandas) -- needs an env with those
-# installed since login-node shells don't have `python` on PATH by default.
-module load Mamba/23.11.0-0
-source activate mc2_eval_env
+# retrieval_from_emb_safe.py is pure CPU (numpy/torch/pandas). Call the env's python by
+# absolute path rather than `module load` + `source activate` -- those are shell
+# functions that don't survive the `nohup bash "$0" &` re-exec below (this script isn't
+# run under sbatch/a login shell, unlike the encode scripts where the pattern works).
+PYTHON="/home/ffirdaus/.conda/envs/mc2_eval_env/bin/python"
 
 SCRIPT="/project/lt200394-thllmV/kd_dataset/scripts/retrieval_from_emb_safe.py"
 EMB_ROOT="/project/lt200394-thllmV/kd_dataset/eval/train_probe/emb"
@@ -58,7 +59,7 @@ run_one() {
     echo "=== [$TAG] backed up existing csv ==="
   fi
 
-  python "$SCRIPT" \
+  "$PYTHON" "$SCRIPT" \
       --emb-dir "$EMB_DIR" \
       --tag "$TAG" \
       --out-csv "$OUT_CSV" \
