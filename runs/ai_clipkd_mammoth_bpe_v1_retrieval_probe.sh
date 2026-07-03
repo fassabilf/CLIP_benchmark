@@ -9,6 +9,9 @@
 
 set -uo pipefail
 
+module load Mamba/23.11.0-0
+source activate mc2_eval_env
+
 SCRIPT="/project/lt200394-thllmV/kd_dataset/scripts/retrieval_from_emb_safe.py"
 EMB_ROOT="/project/lt200394-thllmV/kd_dataset/eval/train_probe/emb"
 
