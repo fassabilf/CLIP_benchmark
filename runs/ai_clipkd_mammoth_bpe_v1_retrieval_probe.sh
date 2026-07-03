@@ -9,8 +9,10 @@
 
 set -uo pipefail
 
-module load Mamba/23.11.0-0
-source activate mc2_eval_env
+# `source activate` requires conda's shell hooks (sourced from an interactive/login shell's
+# .bashrc); a plain `bash script.sh` invocation doesn't have them, so call the env's python
+# binary directly instead of relying on `module load` + `source activate` here.
+PYTHON="/home/ffirdaus/.conda/envs/mc2_eval_env/bin/python"
 
 SCRIPT="/project/lt200394-thllmV/kd_dataset/scripts/retrieval_from_emb_safe.py"
 EMB_ROOT="/project/lt200394-thllmV/kd_dataset/eval/train_probe/emb"
@@ -37,7 +39,7 @@ run_one() {
     echo "=== [$TAG] backed up existing csv ==="
   fi
 
-  python "$SCRIPT" \
+  "$PYTHON" "$SCRIPT" \
       --emb-dir "$EMB_DIR" \
       --tag "$TAG" \
       --out-csv "$OUT_CSV" \
