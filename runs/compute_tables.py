@@ -351,7 +351,7 @@ def main():
     parser.add_argument("--selflearn-tables", action="store_true",
                         help="Generate a SEPARATE PDF of per-lang + per-task tables that include the selflearn (w/o KD) row")
     parser.add_argument("--mammoth-tables", action="store_true",
-                        help="Generate a SEPARATE PDF of per-lang + per-task tables that include the clipkd_mammoth_v1 (KD + ML + Mammoth-VL-SEA) row")
+                        help="Generate SEPARATE PDFs (t2i, i2t, mean) of per-lang + per-task tables that include the clipkd_mammoth_bpe_v1 (CLIP-BPE, SEA-CLIP-Tiny-c4) row")
     parser.add_argument("--ckdonly-tables", action="store_true",
                         help="Generate SEPARATE PDFs (t2i, i2t, mean) of per-lang + per-task tables that include the ckdonly_v1 (clipkd loss only) row")
     args = parser.parse_args()
@@ -366,8 +366,9 @@ def main():
         return
 
     if args.mammoth_tables:
-        print(f"Generating mammoth tables (direction={args.direction}, CVQA={args.cvqa}) ...")
-        gen_mammoth_pdf(args.direction, args.cvqa)
+        print(f"Generating mammoth tables (t2i, i2t, mean; CVQA={args.cvqa}) ...")
+        for direction in ["t2i", "i2t", "mean"]:
+            gen_mammoth_pdf(direction, args.cvqa)
         return
 
     if args.ckdonly_tables:
@@ -622,25 +623,28 @@ def generate_tex(direction: str, cvqa_variant: str = "sea7") -> str:
 #   R@1-Avg              = compute_table3 total_avg@1 (direction=mean, cvqa=sea7).
 #
 # (run_label, train_data_desc, probe_tag, eval_tag, style)
-#   style: "choice"  → c1–c3, eligible for bold-best comparison
+#   style: "choice"  → c1–c4, eligible for bold-best comparison
 #          "searow"  → single-source rows (\rowcolor{searow})
-#          "noKD"    → SEA-CLIP-Tiny w/o KD losses (selflearn)
+#          "siglip"  → SigLIP-tokenizer rows (125M text tower, different #Params —
+#                      not directly comparable), grouped + midrule-separated below
 #          "teacher" → reference row, values in \textit
 TRAINING_ROWS = [
     ("SEA-CLIP-Tiny-c1 (SEA blend)",   r"CG-OE-filt + WIT-hf-base + Bloom \textit{(1.21M)}",    "mc2_e32",                  "mc2_e32",                  "choice"),
     ("SEA-CLIP-Tiny-c2 (CC12M)",       r"CC12M (10.97M)",                                       "mc2cc_e32",                "mc2cc_e32",                "choice"),
     ("SEA-CLIP-Tiny-c3 (CC12M + SEA)", r"CC12M + CG-OE-filt + WIT-hf + Bloom \textit{(12.18M)}", "mc2v3_e32",                "mc2v3_e32",                "choice"),
+    ("SEA-CLIP-Tiny-c4",               r"CC12M + CG-OE-filt + WIT-hf + Bloom + Mammoth-VL-SEA \textit{(12.87M)}", "clipkd_mammoth_bpe_v1_e32", "clipkd_mammoth_bpe_v1_e32", "choice"),
     ("SEA-CLIP-Tiny-WIT",              r"WIT-hf-base (487K)",                                   "mc2wit_e32",               "mc2wit_e32",               "searow"),
     ("SEA-CLIP-Tiny-Bloom",            r"Bloom-only (21K)",                                     "mc2bloom_e32",             "mc2bloom_e32",             "searow"),
     ("SEA-CLIP-Tiny-CG",               r"CG-only (703K)",                                       "mc2cg_e32",                "mc2cg_e32",                "searow"),
-    ("SEA-CLIP-Tiny w/o KD losses",    r"CC12M + CG-OE-filt + WIT-hf + ML \textit{(12.33M)}", "selflearn_mammoth_v1_e32", "selflearn_mammoth_v1_e32", "noKD"),
-    ("SEA-CLIP-Tiny + ML + Mammoth-VL-SEA", r"CC12M + CG-OE-filt + WIT-hf + ML + Mammoth-VL-SEA \textit{(12.87M)}", "clipkd_mammoth_v1_e32", "clipkd_mammoth_v1_e32", "mammothKD"),
-    ("SEA-CLIP-Tiny (CKD only)",       r"CC12M + CG-OE-filt + WIT-hf + Bloom + Mammoth-VL-SEA \textit{(12.87M)}", "ckdonly_v1_e32", "ckdonly_v1_e32", "ckdKD"),
+    # SigLIP-tokenizer rows (125M text tower, not comparable #Params to the CLIP-BPE rows
+    # above) — kept for reference but visually separated below via a midrule.
+    ("SEA-CLIP-Tiny w/o KD losses",    r"CC12M + CG-OE-filt + WIT-hf + ML \textit{(12.33M)}", "selflearn_mammoth_v1_e32", "selflearn_mammoth_v1_e32", "siglip"),
+    ("SEA-CLIP-Tiny (CKD only)",       r"CC12M + CG-OE-filt + WIT-hf + Bloom + Mammoth-VL-SEA \textit{(12.87M)}", "ckdonly_v1_e32", "ckdonly_v1_e32", "siglip"),
     ("Teacher",                        r"---",                                                  "metaclip2_b16",            "metaclip2_b16",            "teacher"),
 ]
 
 # train-probe dataset key per ablation column
-_PROBE_DS = {"cg": "cgoe", "wit": "wit", "bloom": "bloom"}
+_PROBE_DS = {"cg": "cgoe", "wit": "wit", "bloom": "bloom", "mammoth": "mammoth"}
 
 
 def load_train_probe(tag: str, dataset: str, metric: str = "i2t_r@1",
@@ -690,7 +694,7 @@ def _total_avg1(tag: str, direction: str, cvqa: str):
 def compute_training(direction: str = "mean", cvqa: str = "sea7"):
     """Return ordered list of (label, desc, style, {col: value}) for tab:training.
 
-    cols: cg, wit, bloom, imagenet, r1avg
+    cols: cg, wit, bloom, imagenet, imagenet10, r1avg
     """
     rows = []
     for label, desc, ptag, etag, style in TRAINING_ROWS:
@@ -704,7 +708,7 @@ def compute_training(direction: str = "mean", cvqa: str = "sea7"):
 def generate_training_tex(direction: str = "mean", cvqa: str = "sea7") -> str:
     """Filled LaTeX for tab:training (paste-ready, matches the paper layout)."""
     rows = compute_training(direction, cvqa)
-    cols = ["cg", "wit", "bloom", "imagenet", "r1avg"]
+    cols = ["cg", "wit", "bloom", "mammoth", "imagenet", "r1avg"]
 
     # best among the three ablation "choice" rows (c1–c3) per column → bold
     best = {}
@@ -726,16 +730,16 @@ def generate_training_tex(direction: str = "mean", cvqa: str = "sea7") -> str:
     L.append(r"\begin{table}[h!]")
     L.append(r"\centering")
     L.append(r"\resizebox{\linewidth}{!}{%")
-    L.append(r"\begin{tabular}{l l c c c c c}")
+    L.append(r"\begin{tabular}{l l c c c c c c}")
     L.append(r"\toprule")
     L.append(r"\textbf{Run} & \textbf{Train data (\#sample)}")
-    L.append(r"  & \textbf{CG R@1} & \textbf{WIT R@1} & \textbf{Bloom R@1}")
+    L.append(r"  & \textbf{CG R@1} & \textbf{WIT R@1} & \textbf{Bloom R@1} & \textbf{Mammoth R@1}")
     L.append(r"  & \textbf{ImageNet} & \textbf{R@1-Avg} \\")
     L.append(r"\midrule")
 
     prev_style = None
     for label, desc, style, vals in rows:
-        if (style == "noKD" and prev_style == "searow") or style == "teacher":
+        if (style == "siglip" and prev_style != "siglip") or style == "teacher":
             L.append(r"\midrule")
         if style == "searow":
             L.append(r"\rowcolor{searow}")
@@ -805,8 +809,9 @@ def gen_selflearn_pdf(direction: str = "mean", cvqa: str = "sea7"):
 
 
 def gen_mammoth_pdf(direction: str = "mean", cvqa: str = "sea7"):
-    """Per-language + per-task tables INCLUDING the clipkd_mammoth_v1 (KD + ML +
-    Mammoth-VL-SEA) row.
+    """Per-language + per-task tables INCLUDING the clipkd_mammoth_bpe_v1 (CLIP-BPE
+    tokenizer) row, labeled "SEA-CLIP-Tiny-c4" — a 4th data-blend variant alongside
+    c1/c2/c3, not a separate loss ablation.
 
     Written to a SEPARATE file (tables_<dir>_mammoth.{tex,pdf}) so the main
     tables_<dir>.{tex,pdf} stay untouched.
@@ -814,7 +819,7 @@ def gen_mammoth_pdf(direction: str = "mean", cvqa: str = "sea7"):
     import subprocess
     global MODELS
     saved = MODELS
-    MODELS = saved + [("clipkd_mammoth_v1_e32", "SEA-CLIP-Tiny + ML + Mammoth-VL-SEA", False)]
+    MODELS = saved + [("clipkd_mammoth_bpe_v1_e32", "SEA-CLIP-Tiny-c4", False)]
     try:
         tex = generate_tex(direction, cvqa)
     finally:

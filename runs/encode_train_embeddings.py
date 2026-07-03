@@ -38,6 +38,7 @@ import torch
 import torch.nn.functional as F
 
 WDS_ROOT = "/lustrefs/disk/project/lt200394-thllmV/kd_dataset/webdataset"
+MAMMOTH_WDS_DIR = "/project/lt200394-thllmV/mkd-exp/datasets/mammoth_vl_sea_wds"
 
 # Per-language shard dirs that actually exist for each pool (see TRAIN_MULTILINGUAL.md).
 CG_LANGS = ["id", "jv", "ms", "su", "th", "vi"]          # CG-OE-Filt (no my)
@@ -97,6 +98,8 @@ def build_jobs(datasets, langs_filter):
                 jobs.append(("wit", lang, shard_urls(f"{WDS_ROOT}/wit-hf-base-{lang}")))
         elif ds == "bloom":
             jobs.append(("bloom", None, shard_urls(f"{WDS_ROOT}/bloom-sea7")))
+        elif ds == "mammoth":
+            jobs.append(("mammoth", None, shard_urls(MAMMOTH_WDS_DIR)))
         else:
             raise ValueError(f"unknown dataset {ds!r}")
     return jobs
@@ -200,7 +203,8 @@ def main():
                     help="open_clip arch, OR HF repo id (e.g. facebook/metaclip-2-worldwide-b16)")
     ap.add_argument("--model-type", choices=["open_clip", "hf_transformers"], default="open_clip")
     ap.add_argument("--model-cache-dir", default=None, help="HF cache dir (hf_transformers only)")
-    ap.add_argument("--datasets", nargs="+", default=["bloom", "cgoe", "wit"])
+    ap.add_argument("--datasets", nargs="+", default=["bloom", "cgoe", "wit"],
+                    help="bloom / cgoe / wit / mammoth")
     ap.add_argument("--langs", nargs="+", default=None, help="filter cg/wit langs; None=all")
     ap.add_argument("--batch-size", type=int, default=512)
     ap.add_argument("--num-workers", type=int, default=8)

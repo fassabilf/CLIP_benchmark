@@ -30,7 +30,7 @@ DEFAULT_CSV = (
 SKIP_LANGS = {"ceb", "km", "fil", "dialect"}
 
 # Datasets in the probe
-DATASETS = ["bloom", "cgoe", "wit"]
+DATASETS = ["bloom", "cgoe", "wit", "mammoth"]
 
 # Default tag ordering (add new models here)
 DEFAULT_TAGS = [
@@ -125,7 +125,7 @@ def fmt(v, decimals=3):
 def print_table(data: dict, tags: list[str], metric: str):
     col_w = 10
     header_cols = DATASETS + ["all"]
-    header_labels = ["Bloom", "CG-OE", "WIT", "Mean"]
+    header_labels = ["Bloom", "CG-OE", "WIT", "Mammoth", "Mean"]
 
     print(f"\n{'':=<72}")
     print(f"  Train-Probe — {metric}  (mean over main SEA langs, excl. ceb/km/fil)")
@@ -154,9 +154,9 @@ def print_table(data: dict, tags: list[str], metric: str):
 
 def print_latex(data: dict, tags: list[str], metric: str):
     print(f"\n% LaTeX table — {metric}")
-    print(r"\begin{tabular}{l cccc}")
+    print(r"\begin{tabular}{l ccccc}")
     print(r"\toprule")
-    print(r"\textbf{Model} & \textbf{Bloom} & \textbf{CG-OE} & \textbf{WIT} & \textbf{Mean} \\")
+    print(r"\textbf{Model} & \textbf{Bloom} & \textbf{CG-OE} & \textbf{WIT} & \textbf{Mammoth} & \textbf{Mean} \\")
     print(r"\midrule")
     for tag in tags:
         if tag not in data:
