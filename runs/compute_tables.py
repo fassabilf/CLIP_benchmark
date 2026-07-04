@@ -633,7 +633,7 @@ def generate_tex(direction: str, cvqa_variant: str = "sea7") -> str:
 #                      not directly comparable), under the "KD Loss Ablation" section
 #          "teacher" → reference row, values in \textit
 TRAINING_ROWS = [
-    ("SEA-CLIP-Tiny",                  r"CC12M + CG-OE-filt + WIT-hf + Bloom + Mammoth-VL-SEA \textit{(12.87M)}", "clipkd_mammoth_bpe_v1_e32", "clipkd_mammoth_bpe_v1_e32", "main"),
+    ("SEA-CLIP-Tiny",                  r"CC12M + CG-OE-filt + WIT-hf + Bloom + Mammoth-VL-SEA \textit{(12.72M)}", "clipkd_mammoth_bpe_v1_e32", "clipkd_mammoth_bpe_v1_e32", "main"),
     ("Dataset Ablation",               None,                                                    None,                       None,                       "section"),
     ("Only SEA datasets",              r"CG-OE-filt + WIT-hf-base + Bloom \textit{(1.21M)}",    "mc2_e32",                  "mc2_e32",                  "choice"),
     ("Only CC12M",                     r"CC12M (10.97M)",                                       "mc2cc_e32",                "mc2cc_e32",                "choice"),
