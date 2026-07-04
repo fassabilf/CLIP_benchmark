@@ -131,6 +131,37 @@ CLIPKD_MAMMOTH_ONLY_V6_E16_CKPT="$CLIPKD_MAMMOTH_ONLY_V6_DIR/epoch_16.pt"
 CLIPKD_MAMMOTH_ONLY_V6_E24_CKPT="$CLIPKD_MAMMOTH_ONLY_V6_DIR/epoch_24.pt"
 CLIPKD_MAMMOTH_ONLY_V6_E32_CKPT="$CLIPKD_MAMMOTH_ONLY_V6_DIR/epoch_32.pt"
 
+# Asenthil's KD-loss ablation (Jul 2026): 4 ViT-T-16 <- MetaCLIP2-ViT-B-16-worldwide runs,
+# all on the same "Alldata" blend (CC12M + full SEA multilingual blend + Bloom + mammoth_vl_sea,
+# 12.72M samples, 32ep) as clipkd_mammoth_bpe_v1/clipkd_mammoth_only_v6, isolating one distill
+# loss term each via --alpha-{ckd,icl,fd}-loss (nokd has no --distill-* flags at all).
+# CLIP-BPE tokenizer (vocab=49408) -> eval in mc2_eval_env, same config as clipkd_mammoth_bpe_v1.
+# SLURM job names truncate to 8 chars in squeue (mclip-kd/mclip-kd/mclip-fd/mclip-no); full names
+# are mclip-kd-ckd-v1, mclip-kd-icl-v1, mclip-fd-only-v1, mclip-nokd-v1.
+CLIPKD_CKD_V1_DIR="/project/lt200394-thllmV/mkd-exp/open_clip/experiments/clipkd_ckd_v1/clipkd_Alldata_ViT-T-16_metaclip2_ckd_v1/checkpoints"
+CLIPKD_CKD_V1_E8_CKPT="$CLIPKD_CKD_V1_DIR/epoch_8.pt"
+CLIPKD_CKD_V1_E16_CKPT="$CLIPKD_CKD_V1_DIR/epoch_16.pt"
+CLIPKD_CKD_V1_E24_CKPT="$CLIPKD_CKD_V1_DIR/epoch_24.pt"
+CLIPKD_CKD_V1_E32_CKPT="$CLIPKD_CKD_V1_DIR/epoch_32.pt"
+
+CLIPKD_FDONLY_V1_DIR="/project/lt200394-thllmV/mkd-exp/open_clip/experiments/clipkd_fdonly_v1/clipkd_Alldata_ViT-T-16_metaclip2_fdonly_v1/checkpoints"
+CLIPKD_FDONLY_V1_E8_CKPT="$CLIPKD_FDONLY_V1_DIR/epoch_8.pt"
+CLIPKD_FDONLY_V1_E16_CKPT="$CLIPKD_FDONLY_V1_DIR/epoch_16.pt"
+CLIPKD_FDONLY_V1_E24_CKPT="$CLIPKD_FDONLY_V1_DIR/epoch_24.pt"
+CLIPKD_FDONLY_V1_E32_CKPT="$CLIPKD_FDONLY_V1_DIR/epoch_32.pt"
+
+CLIPKD_ICL_V1_DIR="/project/lt200394-thllmV/mkd-exp/open_clip/experiments/clipkd_icl_v1/clipkd_Alldata_ViT-T-16_metaclip2_icl_v1/checkpoints"
+CLIPKD_ICL_V1_E8_CKPT="$CLIPKD_ICL_V1_DIR/epoch_8.pt"
+CLIPKD_ICL_V1_E16_CKPT="$CLIPKD_ICL_V1_DIR/epoch_16.pt"
+CLIPKD_ICL_V1_E24_CKPT="$CLIPKD_ICL_V1_DIR/epoch_24.pt"
+CLIPKD_ICL_V1_E32_CKPT="$CLIPKD_ICL_V1_DIR/epoch_32.pt"
+
+CLIPKD_NOKD_V1_DIR="/project/lt200394-thllmV/mkd-exp/open_clip/experiments/clipkd_nokd-v1/clipkd_Alldata_ViT-T-16_nokd/checkpoints"
+CLIPKD_NOKD_V1_E8_CKPT="$CLIPKD_NOKD_V1_DIR/epoch_8.pt"
+CLIPKD_NOKD_V1_E16_CKPT="$CLIPKD_NOKD_V1_DIR/epoch_16.pt"
+CLIPKD_NOKD_V1_E24_CKPT="$CLIPKD_NOKD_V1_DIR/epoch_24.pt"
+CLIPKD_NOKD_V1_E32_CKPT="$CLIPKD_NOKD_V1_DIR/epoch_32.pt"
+
 # --- timing helpers (source me, then call `stage` / `timed_run`) ---
 # Usage in sweep scripts:
 #   stage "Babel-ImageNet (8 langs)"   # prints banner + start time
