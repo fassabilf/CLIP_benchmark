@@ -623,21 +623,28 @@ def generate_tex(direction: str, cvqa_variant: str = "sea7") -> str:
 #   R@1-Avg              = compute_table3 total_avg@1 (direction=mean, cvqa=sea7).
 #
 # (run_label, train_data_desc, probe_tag, eval_tag, style)
-#   style: "choice"  → c1–c4, eligible for bold-best comparison
-#          "searow"  → single-source rows (\rowcolor{searow})
+#   style: "main"    → the flagship SEA-CLIP-Tiny row, standalone (only its own R@1-Avg
+#                      is bolded, no cross-row comparison)
+#          "section" → a \multicolumn section header (desc/probe_tag/eval_tag unused)
+#          "choice"  → dataset-ablation rows, eligible for bold-best comparison across
+#                      the whole "Dataset Ablation" section (incl. the untrained
+#                      "Only Mammoth" placeholder, which just renders as all "---")
 #          "siglip"  → SigLIP-tokenizer rows (125M text tower, different #Params —
-#                      not directly comparable), grouped + midrule-separated below
+#                      not directly comparable), under the "KD Loss Ablation" section
 #          "teacher" → reference row, values in \textit
 TRAINING_ROWS = [
-    ("SEA-CLIP-Tiny-c1 (SEA blend)",   r"CG-OE-filt + WIT-hf-base + Bloom \textit{(1.21M)}",    "mc2_e32",                  "mc2_e32",                  "choice"),
-    ("SEA-CLIP-Tiny-c2 (CC12M)",       r"CC12M (10.97M)",                                       "mc2cc_e32",                "mc2cc_e32",                "choice"),
-    ("SEA-CLIP-Tiny-c3 (CC12M + SEA)", r"CC12M + CG-OE-filt + WIT-hf + Bloom \textit{(12.18M)}", "mc2v3_e32",                "mc2v3_e32",                "choice"),
-    ("SEA-CLIP-Tiny-c4",               r"CC12M + CG-OE-filt + WIT-hf + Bloom + Mammoth-VL-SEA \textit{(12.87M)}", "clipkd_mammoth_bpe_v1_e32", "clipkd_mammoth_bpe_v1_e32", "choice"),
-    ("SEA-CLIP-Tiny-WIT",              r"WIT-hf-base (487K)",                                   "mc2wit_e32",               "mc2wit_e32",               "searow"),
-    ("SEA-CLIP-Tiny-Bloom",            r"Bloom-only (21K)",                                     "mc2bloom_e32",             "mc2bloom_e32",             "searow"),
-    ("SEA-CLIP-Tiny-CG",               r"CG-only (703K)",                                       "mc2cg_e32",                "mc2cg_e32",                "searow"),
+    ("SEA-CLIP-Tiny",                  r"CC12M + CG-OE-filt + WIT-hf + Bloom + Mammoth-VL-SEA \textit{(12.87M)}", "clipkd_mammoth_bpe_v1_e32", "clipkd_mammoth_bpe_v1_e32", "main"),
+    ("Dataset Ablation",               None,                                                    None,                       None,                       "section"),
+    ("Only SEA datasets",              r"CG-OE-filt + WIT-hf-base + Bloom \textit{(1.21M)}",    "mc2_e32",                  "mc2_e32",                  "choice"),
+    ("Only CC12M",                     r"CC12M (10.97M)",                                       "mc2cc_e32",                "mc2cc_e32",                "choice"),
+    ("Only WIT",                       r"WIT-hf-base (487K)",                                   "mc2wit_e32",               "mc2wit_e32",               "choice"),
+    ("Only Bloom",                     r"Bloom-only (21K)",                                     "mc2bloom_e32",             "mc2bloom_e32",             "choice"),
+    ("Only CG",                        r"CG-only (703K)",                                       "mc2cg_e32",                "mc2cg_e32",                "choice"),
+    ("Only Mammoth",                   r"SEA-Mammoth (540K)",                                   None,                       None,                       "choice"),
+    ("CC12M + SEA",                    r"CC12M + CG-OE-filt + WIT-hf + Bloom \textit{(12.18M)}", "mc2v3_e32",                "mc2v3_e32",                "choice"),
+    ("KD Loss Ablation",               None,                                                    None,                       None,                       "section"),
     # SigLIP-tokenizer rows (125M text tower, not comparable #Params to the CLIP-BPE rows
-    # above) — kept for reference but visually separated below via a midrule.
+    # above) — kept for reference.
     ("SEA-CLIP-Tiny w/o KD losses",    r"CC12M + CG-OE-filt + WIT-hf + ML \textit{(12.33M)}", "selflearn_mammoth_v1_e32", "selflearn_mammoth_v1_e32", "siglip"),
     ("SEA-CLIP-Tiny (CKD only)",       r"CC12M + CG-OE-filt + WIT-hf + Bloom + Mammoth-VL-SEA \textit{(12.87M)}", "ckdonly_v1_e32", "ckdonly_v1_e32", "siglip"),
     ("Teacher",                        r"---",                                                  "metaclip2_b16",            "metaclip2_b16",            "teacher"),
@@ -672,6 +679,8 @@ def load_train_probe(tag: str, dataset: str, metric: str = "i2t_r@1",
 
 
 def _imagenet_acc1_pct(tag: str):
+    if tag is None:
+        return None
     f = RESULTS_DIR / tag / f"imagenet1k_{tag}.json"
     if not f.exists():
         return None
@@ -681,6 +690,8 @@ def _imagenet_acc1_pct(tag: str):
 
 def _total_avg1(tag: str, direction: str, cvqa: str):
     """Total-Average@1 (R@1-Avg) for a single tag, via compute_table3."""
+    if tag is None:
+        return None
     global MODELS
     saved = MODELS
     MODELS = [(tag, tag, False)]
@@ -694,10 +705,13 @@ def _total_avg1(tag: str, direction: str, cvqa: str):
 def compute_training(direction: str = "mean", cvqa: str = "sea7"):
     """Return ordered list of (label, desc, style, {col: value}) for tab:training.
 
-    cols: cg, wit, bloom, imagenet, imagenet10, r1avg
+    cols: cg, wit, bloom, mammoth, imagenet, r1avg. "section" rows carry empty vals.
     """
     rows = []
     for label, desc, ptag, etag, style in TRAINING_ROWS:
+        if style == "section":
+            rows.append((label, desc, style, {}))
+            continue
         vals = {col: load_train_probe(ptag, ds) for col, ds in _PROBE_DS.items()}
         vals["imagenet"] = _imagenet_acc1_pct(etag)
         vals["r1avg"] = _total_avg1(etag, direction, cvqa)
@@ -722,6 +736,8 @@ def generate_training_tex(direction: str = "mean", cvqa: str = "sea7") -> str:
         s = f"{v:.1f}"
         if style == "teacher":
             return r"\textit{" + s + "}"
+        if style == "main" and c == "r1avg":
+            return r"\textbf{" + s + "}"
         if style == "choice" and best[c] is not None and abs(v - best[c]) < 0.05:
             return r"\textbf{" + s + "}"
         return s
@@ -739,10 +755,14 @@ def generate_training_tex(direction: str = "mean", cvqa: str = "sea7") -> str:
 
     prev_style = None
     for label, desc, style, vals in rows:
-        if (style == "siglip" and prev_style != "siglip") or style == "teacher":
+        if style == "section":
             L.append(r"\midrule")
-        if style == "searow":
-            L.append(r"\rowcolor{searow}")
+            L.append(r"\multicolumn{8}{c}{\textit{" + label + r"}} \\")
+            L.append(r"\midrule")
+            prev_style = style
+            continue
+        if style == "teacher":
+            L.append(r"\midrule")
         cells = " & ".join(cell(vals[c], c, style) for c in cols)
         L.append(f"{label}\n  & {desc}\n  & {cells} \\\\")
         prev_style = style
@@ -752,10 +772,10 @@ def generate_training_tex(direction: str = "mean", cvqa: str = "sea7") -> str:
     L.append(r"\end{tabular}%")
     L.append("}")
     L.append(r"\caption{The dataset ablation study. All models are trained on the same "
-             r"training pipeline and hyperparameters. We ran the ablation on SEA-CLIP-Tiny "
-             r"using 3 choices: (c1) SEA blend, (c2) CC12M, and (c3) CC12M+SEA. We also "
-             r"tested on a single source of the SEA dataset, i.e., only WIT, Bloom, or "
-             r"CulturalGround (CG). We use \texttt{R@1-Avg} from Total Average@1 in "
+             r"training pipeline and hyperparameters. SEA-CLIP-Tiny is our full data blend "
+             r"(CC12M + SEA + Mammoth-VL-SEA). The dataset ablation swaps in SEA blend, "
+             r"CC12M, a single SEA source (WIT, Bloom, CG, or Mammoth), or CC12M+SEA as the "
+             r"only training data. We use \texttt{R@1-Avg} from Total Average@1 in "
              r"Table~\ref{tab:per_task}.}")
     L.append(r"\label{tab:training}")
     L.append(r"\vspace{-8mm}")

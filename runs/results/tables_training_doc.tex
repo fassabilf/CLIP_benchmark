@@ -13,30 +13,35 @@
   & \textbf{CG R@1} & \textbf{WIT R@1} & \textbf{Bloom R@1} & \textbf{Mammoth R@1}
   & \textbf{ImageNet} & \textbf{R@1-Avg} \\
 \midrule
-SEA-CLIP-Tiny-c1 (SEA blend)
+SEA-CLIP-Tiny
+  & CC12M + CG-OE-filt + WIT-hf + Bloom + Mammoth-VL-SEA \textit{(12.87M)}
+  & 29.3 & 21.8 & 23.3 & 15.3 & 36.4 & \textbf{17.4} \\
+\midrule
+\multicolumn{8}{c}{\textit{Dataset Ablation}} \\
+\midrule
+Only SEA datasets
   & CG-OE-filt + WIT-hf-base + Bloom \textit{(1.21M)}
   & \textbf{63.7} & \textbf{54.6} & \textbf{24.9} & 0.4 & 5.6 & 9.4 \\
-SEA-CLIP-Tiny-c2 (CC12M)
+Only CC12M
   & CC12M (10.97M)
   & 0.1 & 1.9 & 1.2 & 0.5 & \textbf{40.0} & 6.5 \\
-SEA-CLIP-Tiny-c3 (CC12M + SEA)
-  & CC12M + CG-OE-filt + WIT-hf + Bloom \textit{(12.18M)}
-  & 33.3 & 25.2 & 16.1 & 0.8 & 37.4 & 14.2 \\
-SEA-CLIP-Tiny-c4
-  & CC12M + CG-OE-filt + WIT-hf + Bloom + Mammoth-VL-SEA \textit{(12.87M)}
-  & 29.3 & 21.8 & 23.3 & \textbf{15.3} & 36.4 & \textbf{17.4} \\
-\rowcolor{searow}
-SEA-CLIP-Tiny-WIT
+Only WIT
   & WIT-hf-base (487K)
   & 0.2 & 27.7 & 2.2 & 0.1 & 1.3 & 6.6 \\
-\rowcolor{searow}
-SEA-CLIP-Tiny-Bloom
+Only Bloom
   & Bloom-only (21K)
   & 0.0 & 0.0 & 1.0 & 0.0 & 0.1 & 4.7 \\
-\rowcolor{searow}
-SEA-CLIP-Tiny-CG
+Only CG
   & CG-only (703K)
   & 46.5 & 0.2 & 0.6 & 0.0 & 0.2 & 5.1 \\
+Only Mammoth
+  & SEA-Mammoth (540K)
+  & --- & --- & --- & --- & --- & --- \\
+CC12M + SEA
+  & CC12M + CG-OE-filt + WIT-hf + Bloom \textit{(12.18M)}
+  & 33.3 & 25.2 & 16.1 & \textbf{0.8} & 37.4 & \textbf{14.2} \\
+\midrule
+\multicolumn{8}{c}{\textit{KD Loss Ablation}} \\
 \midrule
 SEA-CLIP-Tiny w/o KD losses
   & CC12M + CG-OE-filt + WIT-hf + ML \textit{(12.33M)}
@@ -51,7 +56,7 @@ Teacher
 \bottomrule
 \end{tabular}%
 }
-\caption{The dataset ablation study. All models are trained on the same training pipeline and hyperparameters. We ran the ablation on SEA-CLIP-Tiny using 3 choices: (c1) SEA blend, (c2) CC12M, and (c3) CC12M+SEA. We also tested on a single source of the SEA dataset, i.e., only WIT, Bloom, or CulturalGround (CG). We use \texttt{R@1-Avg} from Total Average@1 in Table~\ref{tab:per_task}.}
+\caption{The dataset ablation study. All models are trained on the same training pipeline and hyperparameters. SEA-CLIP-Tiny is our full data blend (CC12M + SEA + Mammoth-VL-SEA). The dataset ablation swaps in SEA blend, CC12M, a single SEA source (WIT, Bloom, CG, or Mammoth), or CC12M+SEA as the only training data. We use \texttt{R@1-Avg} from Total Average@1 in Table~\ref{tab:per_task}.}
 \label{tab:training}
 \vspace{-8mm}
 \end{table}
