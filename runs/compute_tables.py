@@ -354,6 +354,8 @@ def main():
                         help="Generate SEPARATE PDFs (t2i, i2t, mean) of per-lang + per-task tables that include the clipkd_mammoth_bpe_v1 (CLIP-BPE, SEA-CLIP-Tiny-c4) row")
     parser.add_argument("--ckdonly-tables", action="store_true",
                         help="Generate SEPARATE PDFs (t2i, i2t, mean) of per-lang + per-task tables that include the ckdonly_v1 (clipkd loss only) row")
+    parser.add_argument("--mammoth-only-v6-tables", action="store_true",
+                        help="Generate SEPARATE PDFs (t2i, i2t, mean) of per-lang + per-task tables that include the clipkd_mammoth_only_v6 (Only Mammoth ablation) row")
     args = parser.parse_args()
 
     if args.training:
@@ -375,6 +377,12 @@ def main():
         print(f"Generating ckdonly tables (t2i, i2t, mean; CVQA={args.cvqa}) ...")
         for direction in ["t2i", "i2t", "mean"]:
             gen_ckdonly_pdf(direction, args.cvqa)
+        return
+
+    if args.mammoth_only_v6_tables:
+        print(f"Generating mammoth_only_v6 tables (t2i, i2t, mean; CVQA={args.cvqa}) ...")
+        for direction in ["t2i", "i2t", "mean"]:
+            gen_clipkd_mammoth_only_v6_pdf(direction, args.cvqa)
         return
 
     if args.gen_pdfs:
@@ -640,7 +648,7 @@ TRAINING_ROWS = [
     ("Only WIT",                       r"WIT-hf-base (487K)",                                   "mc2wit_e32",               "mc2wit_e32",               "choice"),
     ("Only Bloom",                     r"Bloom-only (21K)",                                     "mc2bloom_e32",             "mc2bloom_e32",             "choice"),
     ("Only CG",                        r"CG-only (703K)",                                       "mc2cg_e32",                "mc2cg_e32",                "choice"),
-    ("Only Mammoth",                   r"SEA-Mammoth (540K)",                                   None,                       None,                       "choice"),
+    ("Only Mammoth",                   r"SEA-Mammoth (540K)",                                   "clipkd_mammoth_only_v6_e32", "clipkd_mammoth_only_v6_e32", "choice"),
     ("CC12M + SEA",                    r"CC12M + CG-OE-filt + WIT-hf + Bloom \textit{(12.18M)}", "mc2v3_e32",                "mc2v3_e32",                "choice"),
     ("KD Loss Ablation",               None,                                                    None,                       None,                       "section"),
     # SigLIP-tokenizer rows (125M text tower, not comparable #Params to the CLIP-BPE rows
@@ -871,6 +879,28 @@ def gen_ckdonly_pdf(direction: str = "mean", cvqa: str = "sea7"):
     subprocess.run(["pdflatex", "-interaction=nonstopmode", out.name],
                    cwd=RESULTS_DIR, capture_output=True)
     print(f"  wrote {out.name}  +  compiled tables_{direction}_ckdonly.pdf")
+
+
+def gen_clipkd_mammoth_only_v6_pdf(direction: str = "mean", cvqa: str = "sea7"):
+    """Per-language + per-task tables INCLUDING the clipkd_mammoth_only_v6 (trained on
+    Mammoth-VL-SEA only) row.
+
+    Written to a SEPARATE file (tables_<dir>_mammoth_only_v6.{tex,pdf}) so the main
+    tables_<dir>.{tex,pdf} stay untouched.
+    """
+    import subprocess
+    global MODELS
+    saved = MODELS
+    MODELS = saved + [("clipkd_mammoth_only_v6_e32", "Only Mammoth", False)]
+    try:
+        tex = generate_tex(direction, cvqa)
+    finally:
+        MODELS = saved
+    out = RESULTS_DIR / f"tables_{direction}_mammoth_only_v6.tex"
+    out.write_text(tex)
+    subprocess.run(["pdflatex", "-interaction=nonstopmode", out.name],
+                   cwd=RESULTS_DIR, capture_output=True)
+    print(f"  wrote {out.name}  +  compiled tables_{direction}_mammoth_only_v6.pdf")
 
 
 def gen_all_pdfs(cvqa_variant: str = "sea7"):
