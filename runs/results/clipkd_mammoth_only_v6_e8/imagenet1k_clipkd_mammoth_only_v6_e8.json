@@ -1,0 +1,1 @@
+{"dataset": "imagenet1k-unverified", "model": "ViT-T-16", "pretrained": "/project/lt200394-thllmV/benchmark/open_clip_mammoth_rerun/experiments/clipkd_mammoth_only_v6/clipkd_Alldata_ViT-T-16_metaclip2_v1/checkpoints/epoch_8.pt", "task": "zeroshot_classification", "metrics": {"acc1": 0.00432, "acc5": 0.01776, "mean_per_class_recall": 0.004300000000000001}, "language": "en"}
