@@ -121,6 +121,16 @@ CLIPKD_MAMMOTH_BPE_V1_E16_CKPT="$CLIPKD_MAMMOTH_BPE_V1_DIR/epoch_16.pt"
 CLIPKD_MAMMOTH_BPE_V1_E24_CKPT="$CLIPKD_MAMMOTH_BPE_V1_DIR/epoch_24.pt"
 CLIPKD_MAMMOTH_BPE_V1_E32_CKPT="$CLIPKD_MAMMOTH_BPE_V1_DIR/epoch_32.pt"
 
+# Habibi clipkd_mammoth_only_v6 rerun: ViT-T-16 <- MetaCLIP2-ViT-B-16-worldwide (clipkd distill),
+# CLIP-BPE tokenizer (vocab=49408) -> eval in mc2_eval_env, same config as clipkd_mammoth_bpe_v1.
+# Rerun of the mammoth blend only (no other ablation data mixed in), new project dir
+# open_clip_mammoth_rerun (separate from mkd-exp).
+CLIPKD_MAMMOTH_ONLY_V6_DIR="/project/lt200394-thllmV/benchmark/open_clip_mammoth_rerun/experiments/clipkd_mammoth_only_v6/clipkd_Alldata_ViT-T-16_metaclip2_v1/checkpoints"
+CLIPKD_MAMMOTH_ONLY_V6_E8_CKPT="$CLIPKD_MAMMOTH_ONLY_V6_DIR/epoch_8.pt"
+CLIPKD_MAMMOTH_ONLY_V6_E16_CKPT="$CLIPKD_MAMMOTH_ONLY_V6_DIR/epoch_16.pt"
+CLIPKD_MAMMOTH_ONLY_V6_E24_CKPT="$CLIPKD_MAMMOTH_ONLY_V6_DIR/epoch_24.pt"
+CLIPKD_MAMMOTH_ONLY_V6_E32_CKPT="$CLIPKD_MAMMOTH_ONLY_V6_DIR/epoch_32.pt"
+
 # --- timing helpers (source me, then call `stage` / `timed_run`) ---
 # Usage in sweep scripts:
 #   stage "Babel-ImageNet (8 langs)"   # prints banner + start time
