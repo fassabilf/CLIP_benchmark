@@ -37,6 +37,19 @@ CC12M + SEA
 \midrule
 \multicolumn{8}{c}{\textit{KD Loss Ablation}} \\
 \midrule
+Only CKD
+  & CC12M + CG-OE-filt + WIT-hf + Bloom + Mammoth-VL-SEA \textit{(12.72M)}
+  & 28.5 & 20.3 & 11.3 & --- & 32.7 & 13.7 \\
+Only FD
+  & CC12M + CG-OE-filt + WIT-hf + Bloom + Mammoth-VL-SEA \textit{(12.72M)}
+  & \textbf{39.5} & \textbf{26.8} & 11.3 & --- & 31.3 & 12.1 \\
+Only ICL
+  & CC12M + CG-OE-filt + WIT-hf + Bloom + Mammoth-VL-SEA \textit{(12.72M)}
+  & 39.2 & 26.4 & 15.3 & --- & \textbf{34.2} & \textbf{15.7} \\
+w/o KD
+  & CC12M + CG-OE-filt + WIT-hf + Bloom + Mammoth-VL-SEA \textit{(12.72M)}
+  & 39.1 & 26.1 & \textbf{15.6} & --- & 31.4 & 12.1 \\
+\midrule
 SEA-CLIP-Tiny w/o KD losses
   & CC12M + CG-OE-filt + WIT-hf + ML \textit{(12.33M)}
   & 47.4 & 41.5 & 28.8 & --- & --- & --- \\

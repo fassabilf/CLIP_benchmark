@@ -356,6 +356,8 @@ def main():
                         help="Generate SEPARATE PDFs (t2i, i2t, mean) of per-lang + per-task tables that include the ckdonly_v1 (clipkd loss only) row")
     parser.add_argument("--mammoth-only-v6-tables", action="store_true",
                         help="Generate SEPARATE PDFs (t2i, i2t, mean) of per-lang + per-task tables that include the clipkd_mammoth_only_v6 (Only Mammoth ablation) row")
+    parser.add_argument("--ablation4-tables", action="store_true",
+                        help="Generate SEPARATE PDFs (t2i, i2t, mean) of per-lang + per-task tables that include the 4-way KD-loss ablation rows (Only CKD/FD/ICL, w/o KD)")
     args = parser.parse_args()
 
     if args.training:
@@ -383,6 +385,12 @@ def main():
         print(f"Generating mammoth_only_v6 tables (t2i, i2t, mean; CVQA={args.cvqa}) ...")
         for direction in ["t2i", "i2t", "mean"]:
             gen_clipkd_mammoth_only_v6_pdf(direction, args.cvqa)
+        return
+
+    if args.ablation4_tables:
+        print(f"Generating ablation4 tables (t2i, i2t, mean; CVQA={args.cvqa}) ...")
+        for direction in ["t2i", "i2t", "mean"]:
+            gen_clipkd_ablation4_pdf(direction, args.cvqa)
         return
 
     if args.gen_pdfs:
@@ -637,6 +645,9 @@ def generate_tex(direction: str, cvqa_variant: str = "sea7") -> str:
 #          "choice"  → dataset-ablation rows, eligible for bold-best comparison across
 #                      the whole "Dataset Ablation" section (incl. the untrained
 #                      "Only Mammoth" placeholder, which just renders as all "---")
+#          "kdloss"  → 4-way KD-loss ablation rows (CLIP-BPE, same #Params as SEA-CLIP-Tiny
+#                      and the Dataset Ablation rows), eligible for bold-best comparison
+#                      among themselves only, under the "KD Loss Ablation" section
 #          "siglip"  → SigLIP-tokenizer rows (125M text tower, different #Params —
 #                      not directly comparable), under the "KD Loss Ablation" section
 #          "teacher" → reference row, values in \textit
@@ -651,6 +662,10 @@ TRAINING_ROWS = [
     ("Only Mammoth",                   r"SEA-Mammoth (540K)",                                   "clipkd_mammoth_only_v6_e32", "clipkd_mammoth_only_v6_e32", "choice"),
     ("CC12M + SEA",                    r"CC12M + CG-OE-filt + WIT-hf + Bloom \textit{(12.18M)}", "mc2v3_e32",                "mc2v3_e32",                "choice"),
     ("KD Loss Ablation",               None,                                                    None,                       None,                       "section"),
+    ("Only CKD",                       r"CC12M + CG-OE-filt + WIT-hf + Bloom + Mammoth-VL-SEA \textit{(12.72M)}", "clipkd_ckd_v1_e32",    "clipkd_ckd_v1_e32",    "kdloss"),
+    ("Only FD",                        r"CC12M + CG-OE-filt + WIT-hf + Bloom + Mammoth-VL-SEA \textit{(12.72M)}", "clipkd_fdonly_v1_e32", "clipkd_fdonly_v1_e32", "kdloss"),
+    ("Only ICL",                       r"CC12M + CG-OE-filt + WIT-hf + Bloom + Mammoth-VL-SEA \textit{(12.72M)}", "clipkd_icl_v1_e32",    "clipkd_icl_v1_e32",    "kdloss"),
+    ("w/o KD",                         r"CC12M + CG-OE-filt + WIT-hf + Bloom + Mammoth-VL-SEA \textit{(12.72M)}", "clipkd_nokd_v1_e32",   "clipkd_nokd_v1_e32",   "kdloss"),
     # SigLIP-tokenizer rows (125M text tower, not comparable #Params to the CLIP-BPE rows
     # above) — kept for reference.
     ("SEA-CLIP-Tiny w/o KD losses",    r"CC12M + CG-OE-filt + WIT-hf + ML \textit{(12.33M)}", "selflearn_mammoth_v1_e32", "selflearn_mammoth_v1_e32", "siglip"),
@@ -732,11 +747,17 @@ def generate_training_tex(direction: str = "mean", cvqa: str = "sea7") -> str:
     rows = compute_training(direction, cvqa)
     cols = ["cg", "wit", "bloom", "mammoth", "imagenet", "r1avg"]
 
-    # best among the three ablation "choice" rows (c1–c3) per column → bold
+    # best among the Dataset Ablation "choice" rows per column → bold
     best = {}
     for c in cols:
         cand = [v[c] for (_l, _d, s, v) in rows if s == "choice" and v[c] is not None]
         best[c] = max(cand) if cand else None
+
+    # best among the KD Loss Ablation "kdloss" rows per column → bold (separate group)
+    kdloss_best = {}
+    for c in cols:
+        cand = [v[c] for (_l, _d, s, v) in rows if s == "kdloss" and v[c] is not None]
+        kdloss_best[c] = max(cand) if cand else None
 
     def cell(v, c, style):
         if v is None:
@@ -747,6 +768,8 @@ def generate_training_tex(direction: str = "mean", cvqa: str = "sea7") -> str:
         if style == "main" and c == "r1avg":
             return r"\textbf{" + s + "}"
         if style == "choice" and best[c] is not None and abs(v - best[c]) < 0.05:
+            return r"\textbf{" + s + "}"
+        if style == "kdloss" and kdloss_best[c] is not None and abs(v - kdloss_best[c]) < 0.05:
             return r"\textbf{" + s + "}"
         return s
 
@@ -769,7 +792,7 @@ def generate_training_tex(direction: str = "mean", cvqa: str = "sea7") -> str:
             L.append(r"\midrule")
             prev_style = style
             continue
-        if style == "teacher":
+        if style == "teacher" or (style == "siglip" and prev_style != "siglip"):
             L.append(r"\midrule")
         cells = " & ".join(cell(vals[c], c, style) for c in cols)
         L.append(f"{label}\n  & {desc}\n  & {cells} \\\\")
@@ -901,6 +924,33 @@ def gen_clipkd_mammoth_only_v6_pdf(direction: str = "mean", cvqa: str = "sea7"):
     subprocess.run(["pdflatex", "-interaction=nonstopmode", out.name],
                    cwd=RESULTS_DIR, capture_output=True)
     print(f"  wrote {out.name}  +  compiled tables_{direction}_mammoth_only_v6.pdf")
+
+
+def gen_clipkd_ablation4_pdf(direction: str = "mean", cvqa: str = "sea7"):
+    """Per-language + per-task tables INCLUDING the 4-way KD-loss ablation rows
+    (Only CKD / Only FD / Only ICL / w/o KD, all CLIP-BPE, e32).
+
+    Written to a SEPARATE file (tables_<dir>_ablation4.{tex,pdf}) so the main
+    tables_<dir>.{tex,pdf} stay untouched.
+    """
+    import subprocess
+    global MODELS
+    saved = MODELS
+    MODELS = saved + [
+        ("clipkd_ckd_v1_e32",    "Only CKD", False),
+        ("clipkd_fdonly_v1_e32", "Only FD",  False),
+        ("clipkd_icl_v1_e32",    "Only ICL", False),
+        ("clipkd_nokd_v1_e32",   "w/o KD",   False),
+    ]
+    try:
+        tex = generate_tex(direction, cvqa)
+    finally:
+        MODELS = saved
+    out = RESULTS_DIR / f"tables_{direction}_ablation4.tex"
+    out.write_text(tex)
+    subprocess.run(["pdflatex", "-interaction=nonstopmode", out.name],
+                   cwd=RESULTS_DIR, capture_output=True)
+    print(f"  wrote {out.name}  +  compiled tables_{direction}_ablation4.pdf")
 
 
 def gen_all_pdfs(cvqa_variant: str = "sea7"):
