@@ -34,6 +34,16 @@ sys.path.insert(0, str(REPO_ROOT))
 
 PROFILE_DIR = REPO_ROOT / "runs" / "results" / "profile"
 
+
+def set_profile_dir(path):
+    """Point reads and writes at another directory (e.g. a cpu/ sub-run).
+
+    Latency is device-bound, so a CPU sweep must not overwrite the GPU JSONs it
+    would otherwise share filenames with.
+    """
+    global PROFILE_DIR
+    PROFILE_DIR = Path(path)
+
 # (key, table label, model, pretrained, model_type)
 #
 # `pretrained=""` builds from the architecture config with random init, which is
@@ -53,6 +63,14 @@ SPECS = [
 # Rows to include in the headline table, in display order. The teacher is
 # measured but kept out by default — it is a reference, not a comparison point.
 DEFAULT_ROWS = ["tinyclip", "mobileclip2_s0", "sea_clip_tiny"]
+
+
+def _rel(path):
+    """Repo-relative when it can be, absolute otherwise (--out-dir may be elsewhere)."""
+    try:
+        return path.relative_to(REPO_ROOT)
+    except ValueError:
+        return path
 
 
 def _slug(text):
@@ -115,6 +133,7 @@ def profile_one(spec, args):
         warmup=args.warmup,
         runs=args.runs,
         latency=not args.no_latency,
+        memory=not args.no_memory,
         param_split=args.param_split,
         extra_image_hints=args.image_hint or (),
     )
@@ -124,7 +143,7 @@ def profile_one(spec, args):
     PROFILE_DIR.mkdir(parents=True, exist_ok=True)
     out = PROFILE_DIR / f"{key}.json"
     out.write_text(json.dumps(result, indent=2))
-    print(f"  → {out.relative_to(REPO_ROOT)}")
+    print(f"  → {_rel(out)}")
 
     del model
     if device.startswith("cuda"):
@@ -162,18 +181,46 @@ def _tower_params(r, tower, exclude_projections=False):
     return n
 
 
+def _batch_sizes(results):
+    """(smallest, largest) batch size present in every result's latency block.
+
+    Latency is read at the smallest (single-sample response time, what the
+    rebuttal quotes as ms/image); throughput and peak memory at the largest
+    (saturated the way a batched eval loop runs).
+    """
+    common = None
+    for r in results:
+        keys = set(r.get("latency", {}))
+        common = keys if common is None else (common & keys)
+    if not common:
+        return None, None
+    ordered = sorted(common, key=int)
+    return ordered[0], ordered[-1]
+
+
+def _has_memory(results, bs):
+    return bs is not None and all(
+        "peak_mem_alloc_mb" in r["latency"][bs]["image"] for r in results)
+
+
 def render_markdown(results, with_latency=True, exclude_projections=False):
     has_lat = with_latency and all("latency" in r for r in results)
-    bs = None
+    bs = tbs = None
     if has_lat:
-        bs = sorted({b for r in results for b in r["latency"]}, key=int)[0]
+        bs, tbs = _batch_sizes(results)
+        has_lat = bs is not None
+    has_mem = has_lat and _has_memory(results, tbs)
 
     head = ["Model", "Image params", "Text params",
             "Image GFLOPs", "Text GFLOPs", "Total GFLOPs"]
     align = ["", "---:", "---:", "---:", "---:", "---:"]
     if has_lat:
-        head += [f"Image ms (bs={bs})", f"Text ms (bs={bs})"]
-        align += ["---:", "---:"]
+        head += [f"Image ms (bs={bs})", f"Text ms (bs={bs})",
+                 f"img/s (bs={tbs})", f"txt/s (bs={tbs})"]
+        align += ["---:", "---:", "---:", "---:"]
+    if has_mem:
+        head += [f"Peak mem MB (bs={tbs})"]
+        align += ["---:"]
     align[0] = "---"
 
     lines = ["| " + " | ".join(head) + " |",
@@ -185,8 +232,12 @@ def render_markdown(results, with_latency=True, exclude_projections=False):
                  _m(_tower_params(r, "text", exclude_projections)),
                  _g(g["image"]), _g(g["text"]), _g(g["total"])]
         if has_lat:
-            lat = r["latency"][bs]
-            cells += [f"{lat['image']['p50_ms']:.2f}", f"{lat['text']['p50_ms']:.2f}"]
+            lat, tput = r["latency"][bs], r["latency"][tbs]
+            cells += [f"{lat['image']['p50_ms']:.2f}", f"{lat['text']['p50_ms']:.2f}",
+                      f"{tput['images_per_sec']:.0f}", f"{tput['texts_per_sec']:.0f}"]
+        if has_mem:
+            peak = max(r["latency"][tbs][t]["peak_mem_alloc_mb"] for t in ("image", "text"))
+            cells += [f"{peak:.0f}"]
         lines.append("| " + " | ".join(cells) + " |")
 
     notes = []
@@ -205,6 +256,12 @@ def render_markdown(results, with_latency=True, exclude_projections=False):
         notes.append(f"Latency = median of {r0['latency'][bs]['image']['runs']} runs "
                      f"after {r0['latency'][bs]['image']['warmup']} warmup passes, "
                      f"{r0['precision']}, on {', '.join(sorted(gpus))}.")
+        notes.append(f"Throughput = batch size / mean batch time at bs={tbs}, "
+                     "same runs and precision.")
+    if has_mem:
+        notes.append(f"Peak memory = torch.cuda.max_memory_allocated over the measured "
+                     f"bs={tbs} passes (weights resident + activations of the larger "
+                     "tower), after warmup.")
     return "\n".join(lines) + "\n\n" + "\n".join(f"- {n}" for n in notes)
 
 
@@ -260,6 +317,12 @@ def main():
                     help="skip measurement, render from existing JSON.")
     ap.add_argument("--no-latency", action="store_true",
                     help="params + FLOPs only (device-independent).")
+    ap.add_argument("--no-memory", action="store_true",
+                    help="skip the peak-CUDA-memory measurement taken alongside latency.")
+    ap.add_argument("--out-dir", default=None,
+                    help="write/read the per-model JSON and the rendered table here "
+                         "instead of runs/results/profile (use for a CPU sweep, whose "
+                         "latency must not overwrite the GPU numbers).")
     ap.add_argument("--batch-size", type=int, nargs="+", default=[1, 64],
                     help="latency batch sizes. FLOPs are always per sample.")
     ap.add_argument("--warmup", type=int, default=20)
@@ -276,6 +339,9 @@ def main():
                          "TinyCLIP 8.15M/15.04M; the default includes the heads.")
     ap.add_argument("--latex", action="store_true", help="also print the LaTeX table.")
     args = ap.parse_args()
+
+    if args.out_dir:
+        set_profile_dir(args.out_dir)
 
     specs = specs_from_args(args)
     ad_hoc = args.model or args.models_file
@@ -301,7 +367,7 @@ def main():
     print("\n" + table)
     md = PROFILE_DIR / "efficiency_table.md"
     md.write_text(table + "\n")
-    print(f"\n→ {md.relative_to(REPO_ROOT)}")
+    print(f"\n→ {_rel(md)}")
 
     tex = render_latex(results, exclude_projections=args.exclude_projections)
     (PROFILE_DIR / "efficiency_table.tex").write_text(tex + "\n")

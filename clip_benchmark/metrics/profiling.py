@@ -250,12 +250,18 @@ def count_flops(fn, arg):
 
 # ─── latency ─────────────────────────────────────────────────────────────────
 
-def measure_latency(fn, arg, device, warmup=20, runs=100, amp=True):
+def measure_latency(fn, arg, device, warmup=20, runs=100, amp=True, memory=True):
     """Wall-clock latency of `fn(arg)`, in milliseconds.
 
     CUDA timings use cuda events and synchronize around every measured call, so
     what is timed is kernel completion rather than kernel launch. Returns
     mean/std/median/p90/min so tail behaviour stays visible.
+
+    On CUDA, `memory=True` also reports the peak memory the measured passes
+    reach (`peak_mem_alloc_mb` = tensor bytes, `peak_mem_reserved_mb` = what the
+    caching allocator held). The peak counters are reset after the warmup so the
+    number describes a steady-state forward pass, and it covers activations for
+    THIS tower at THIS batch size on top of the whole model's resident weights.
     """
     is_cuda = torch.device(device).type == "cuda"
     autocast = torch.autocast(torch.device(device).type, enabled=amp)
@@ -268,6 +274,8 @@ def measure_latency(fn, arg, device, warmup=20, runs=100, amp=True):
         _once()
     if is_cuda:
         torch.cuda.synchronize()
+        if memory:
+            torch.cuda.reset_peak_memory_stats(device)
 
     times_ms = []
     for _ in range(runs):
@@ -286,7 +294,7 @@ def measure_latency(fn, arg, device, warmup=20, runs=100, amp=True):
             times_ms.append((time.perf_counter() - t0) * 1e3)
 
     times_ms.sort()
-    return {
+    out = {
         "mean_ms": statistics.fmean(times_ms),
         "std_ms": statistics.stdev(times_ms) if len(times_ms) > 1 else 0.0,
         "p50_ms": statistics.median(times_ms),
@@ -295,6 +303,10 @@ def measure_latency(fn, arg, device, warmup=20, runs=100, amp=True):
         "runs": runs,
         "warmup": warmup,
     }
+    if is_cuda and memory:
+        out["peak_mem_alloc_mb"] = torch.cuda.max_memory_allocated(device) / 2**20
+        out["peak_mem_reserved_mb"] = torch.cuda.max_memory_reserved(device) / 2**20
+    return out
 
 
 # ─── driver ──────────────────────────────────────────────────────────────────
@@ -302,7 +314,7 @@ def measure_latency(fn, arg, device, warmup=20, runs=100, amp=True):
 def profile(model, transform, tokenizer, device="cuda", amp=True,
             latency_batch_sizes=(1,), warmup=20, runs=100, latency=True,
             verbose=True, image_fn=None, text_fn=None, param_split="auto",
-            extra_image_hints=()):
+            extra_image_hints=(), memory=True):
     """Profile any CLIP-like model. Returns a JSON-serialisable dict.
 
     Model-agnostic: the two towers are found via `resolve_encoders` (or passed
@@ -377,15 +389,20 @@ def profile(model, transform, tokenizer, device="cuda", amp=True,
             img = to_device(example_image(transform, bs), device)
             txt = to_device(example_text(tokenizer, bs), device)
             entry = {
-                "image": measure_latency(image_fn, img, device, warmup, runs, amp),
-                "text": measure_latency(text_fn, txt, device, warmup, runs, amp),
+                "image": measure_latency(image_fn, img, device, warmup, runs, amp, memory),
+                "text": measure_latency(text_fn, txt, device, warmup, runs, amp, memory),
             }
             entry["total_mean_ms"] = entry["image"]["mean_ms"] + entry["text"]["mean_ms"]
             entry["images_per_sec"] = bs / (entry["image"]["mean_ms"] / 1e3)
+            entry["texts_per_sec"] = bs / (entry["text"]["mean_ms"] / 1e3)
             result["latency"][str(bs)] = entry
             if verbose:
+                mem = entry["image"].get("peak_mem_alloc_mb")
+                mem_s = f"  peak {mem:6.0f} MB" if mem is not None else ""
                 print(f"  bs={bs:<4d} image {entry['image']['p50_ms']:7.2f} ms  "
-                      f"text {entry['text']['p50_ms']:7.2f} ms (median)")
+                      f"text {entry['text']['p50_ms']:7.2f} ms (median)  "
+                      f"{entry['images_per_sec']:8.1f} img/s "
+                      f"{entry['texts_per_sec']:8.1f} txt/s{mem_s}")
 
     return result
 
