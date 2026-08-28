@@ -15,7 +15,8 @@ from clip_benchmark.datasets.builder import (build_dataset, dataset_collection,
                                              get_dataset_collection_from_file,
                                              get_dataset_default_task)
 from clip_benchmark.metrics import (captioning, image_caption_selection,
-                                    linear_probe, zeroshot_classification,
+                                    linear_probe, profiling,
+                                    zeroshot_classification,
                                     zeroshot_retrieval)
 from clip_benchmark.model_collection import (get_model_collection_from_file,
                                              model_collection)
@@ -68,7 +69,28 @@ def get_parser_args():
     parser_eval.add_argument('--skip_existing', default=False, action="store_true", help="whether to skip an evaluation if the output file exists.")
     parser_eval.add_argument('--model_type', default="auto", type=str, choices=MODEL_TYPES + ["auto"], help="clip model type. 'auto' infers from --model: 'org/name' → hf_transformers, anything else → open_clip.")
     parser_eval.add_argument('--wds_cache_dir', default=None, type=str, help="optional cache directory for webdataset only")
+    parser_eval.add_argument('--profile', action="store_true", help="also measure params / FLOPs / latency for the loaded model and store them under a 'profile' key in the output JSON. Measured after the eval finishes, so it cannot perturb the accuracy numbers.")
+    parser_eval.add_argument('--profile_batch_size', default=[1], type=int, nargs="+", help="batch size(s) for the latency measurement. FLOPs are always per sample.")
+    parser_eval.add_argument('--profile_no_latency', action="store_true", help="with --profile, measure only params and FLOPs (device-independent, and safe to run on a shared GPU).")
+    parser_eval.add_argument('--profile_warmup', default=20, type=int, help="discarded forward passes before timing.")
+    parser_eval.add_argument('--profile_runs', default=100, type=int, help="timed forward passes per latency measurement.")
     parser_eval.set_defaults(which='eval')
+
+    parser_profile = subparsers.add_parser('profile', help='Profile params / FLOPs / latency')
+    parser_profile.add_argument('--model', type=str, default="ViT-T-16", help="Model architecture (same value as for `eval`).")
+    parser_profile.add_argument('--pretrained', type=str, default="", help="Checkpoint path or open_clip tag. Optional: FLOPs, params and latency depend on the architecture, not on the trained weights, so an empty value profiles a randomly-initialised model and gives identical numbers.")
+    parser_profile.add_argument('--model_type', default="auto", type=str, choices=MODEL_TYPES + ["auto"], help="clip model type, as for `eval`.")
+    parser_profile.add_argument('--model_cache_dir', default=None, type=str, help="directory to where downloaded models are cached")
+    parser_profile.add_argument('--device', default=None, type=str, help="device to profile on. Defaults to cuda when available. Latency is device-bound — whatever is used here must be reported alongside the numbers.")
+    parser_profile.add_argument('--batch_size', default=[1], type=int, nargs="+", help="batch size(s) to measure latency at. FLOPs are always reported per sample.")
+    parser_profile.add_argument('--warmup', default=20, type=int, help="discarded forward passes before timing.")
+    parser_profile.add_argument('--runs', default=100, type=int, help="timed forward passes per measurement.")
+    parser_profile.add_argument('--no_latency', action="store_true", help="only measure params and FLOPs (device-independent).")
+    parser_profile.add_argument('--no_amp', action="store_false", dest="amp", default=True, help="measure latency in fp32. By default latency is measured under the same autocast the eval metrics use.")
+    parser_profile.add_argument('--check_vocab', action="store_true", help="assert the built text config matches --pretrained's token_embedding. Catches the ViT-T-16 CLIP-BPE/SigLIP2 config ambiguity.")
+    parser_profile.add_argument('--output', default=None, type=str, help="write the result JSON here.")
+    parser_profile.add_argument('--quiet', dest='verbose', action="store_false", help="suppress verbose messages")
+    parser_profile.set_defaults(which='profile')
 
     parser_build = subparsers.add_parser('build', help='Build CSV from evaluations')
     parser_build.add_argument('files', type=str,  nargs="+", help="path(s) of JSON result files")
@@ -85,8 +107,66 @@ def main():
         return
     if base.which == "eval":
         main_eval(base)
+    elif base.which == "profile":
+        main_profile(base)
     elif base.which == "build":
         main_build(base)
+
+def main_profile(base):
+    """Measure parameters, FLOPs and latency for a single model."""
+    if base.device:
+        device = base.device
+    else:
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+
+    if base.verbose:
+        print(f"Profiling '{base.model}' (pretrained='{base.pretrained}') on {device}")
+
+    model, transform, tokenizer = load_clip(
+        model_type=base.model_type,
+        model_name=base.model,
+        pretrained=base.pretrained,
+        cache_dir=base.model_cache_dir,
+        device=device,
+    )
+    model.eval()
+
+    if base.check_vocab:
+        if not os.path.isfile(base.pretrained):
+            raise ValueError("--check_vocab needs --pretrained to be a checkpoint path")
+        profiling.assert_vocab_size(model, base.pretrained, verbose=base.verbose)
+
+    result = profiling.profile(
+        model, transform, tokenizer,
+        device=device,
+        amp=base.amp,
+        latency_batch_sizes=base.batch_size,
+        warmup=base.warmup,
+        runs=base.runs,
+        latency=not base.no_latency,
+        verbose=base.verbose,
+    )
+    result["model"] = base.model
+    result["pretrained"] = base.pretrained
+
+    if base.verbose:
+        p_ = result["params"]
+        g = result["gflops"]
+        print(f"  params  image {p_['image']/1e6:.2f}M  text {p_['text']/1e6:.2f}M  "
+              f"total {p_['total']/1e6:.2f}M")
+        print(f"  GFLOPs  image {g['image']:.3f}  text {g['text']:.3f}  "
+              f"total {g['total']:.3f}")
+
+    if base.output:
+        os.makedirs(os.path.dirname(os.path.abspath(base.output)), exist_ok=True)
+        with open(base.output, "w") as f:
+            json.dump(result, f, indent=2)
+        if base.verbose:
+            print(f"Dump results to: {base.output}")
+    else:
+        print(json.dumps(result, indent=2))
+    return 0
+
 
 def main_build(base):
     # Build a benchmark single CSV file from a set of evaluations (JSON files)
@@ -424,6 +504,23 @@ def run(args):
         "metrics": metrics,
         "language": args.language,
     }
+    if getattr(args, "profile", False) and model is not None:
+        # After the eval, so warmup passes and timing can't perturb the metrics.
+        try:
+            dump["profile"] = profiling.profile(
+                model, transform, tokenizer,
+                device=args.device,
+                amp=args.amp,
+                latency_batch_sizes=args.profile_batch_size,
+                warmup=args.profile_warmup,
+                runs=args.profile_runs,
+                latency=not args.profile_no_latency,
+                verbose=args.verbose,
+            )
+        except Exception as e:
+            # Never lose a completed evaluation to a profiling failure.
+            print(f"WARNING: profiling failed ({type(e).__name__}: {e})")
+            dump["profile"] = {"error": f"{type(e).__name__}: {e}"}
     if hasattr(dataset, "classes") and dataset.classes and args.dump_classnames:
         dump["classnames"] = dataset.classes
     if hasattr(dataset, "templates") and dataset.templates and args.dump_templates:

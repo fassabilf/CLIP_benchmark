@@ -1,0 +1,13 @@
+\begin{table}[h!]
+\centering
+\begin{tabular}{l r r r r r}
+\toprule
+\textbf{Model} & \textbf{Image params} & \textbf{Text params}
+  & \textbf{Image GFLOPs} & \textbf{Text GFLOPs} & \textbf{Total GFLOPs} \\
+\midrule
+TinyCLIP & 8.15M & 15.04M & 3.57 & 0.38 & 3.96 \\
+\bottomrule
+\end{tabular}
+\caption{Efficiency comparison. GFLOPs are per sample for a single forward pass of each tower, counted with \texttt{torch.utils.flop\_counter} (1 MAC = 2 FLOPs), at each model's native input resolution and context length.}
+\label{tab:efficiency}
+\end{table}
