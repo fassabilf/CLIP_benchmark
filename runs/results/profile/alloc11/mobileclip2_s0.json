@@ -39,11 +39,11 @@
   "latency": {
     "1": {
       "image": {
-        "mean_ms": 14.706237440109254,
+        "mean_ms": 14.73139711380005,
         "std_ms": 0.5729115937035315,
         "p50_ms": 14.436863899230957,
         "p90_ms": 15.787008285522461,
-        "min_ms": 14.377984046936035,
+        "min_ms": 14.385151863098145,
         "runs": 100,
         "warmup": 20,
         "peak_mem_alloc_mb": 323.029296875,
@@ -61,16 +61,16 @@
         "peak_mem_reserved_mb": 392.0
       },
       "total_mean_ms": 19.991644163131713,
-      "images_per_sec": 67.99835811657961,
+      "images_per_sec": 67.88222408743717,
       "texts_per_sec": 190.10513966773746
     },
     "1024": {
       "image": {
-        "mean_ms": 530.6361865234375,
-        "std_ms": 0.045844036256869954,
-        "p50_ms": 530.6311645507812,
-        "p90_ms": 530.6992797851562,
-        "min_ms": 530.5518188476562,
+        "mean_ms": 531.0352880859375,
+        "std_ms": 0.1658564197382615,
+        "p50_ms": 530.9716491699219,
+        "p90_ms": 531.252197265625,
+        "min_ms": 530.8845825195312,
         "runs": 100,
         "warmup": 20,
         "peak_mem_alloc_mb": 9258.099609375,
@@ -88,7 +88,7 @@
         "peak_mem_reserved_mb": 11786.0
       },
       "total_mean_ms": 602.323024673462,
-      "images_per_sec": 1929.759081658053,
+      "images_per_sec": 1928.3087639823402,
       "texts_per_sec": 14364.321957995833
     }
   },
@@ -96,6 +96,5 @@
   "label": "MobileCLIP2",
   "model": "MobileCLIP2-S0",
   "pretrained": "dfndr2b",
-  "model_type": "open_clip",
-  "repetitions": 3
+  "model_type": "open_clip"
 }

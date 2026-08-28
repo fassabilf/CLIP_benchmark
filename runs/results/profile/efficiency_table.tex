@@ -5,10 +5,10 @@
 \textbf{Model} & \textbf{Image params} & \textbf{Text params}
   & \textbf{Image GFLOPs} & \textbf{Text GFLOPs} & \textbf{Total GFLOPs} \\
 \midrule
-TinyCLIP & 8.15M & 2.39M & 3.57 & 0.38 & 3.96 \\
-MobileCLIP2 & 11.41M & 37.87M & 4.79 & 3.88 & 8.66 \\
-SEA-CLIP-Tiny & 5.52M & 21.32M & 2.51 & 3.38 & 5.89 \\
-MetaCLIP-2 B/16 (teacher) & 85.80M & 37.87M & 35.13 & 5.96 & 41.09 \\
+TinyCLIP & 8.28M & 15.17M & 3.57 & 0.38 & 3.96 \\
+MobileCLIP2 & 11.41M & 63.43M & 4.79 & 3.88 & 8.66 \\
+SEA-CLIP-Tiny & 5.62M & 40.49M & 2.51 & 3.38 & 5.89 \\
+MetaCLIP-2 B/16 (teacher) & 86.19M & 499.77M & 35.13 & 5.96 & 41.09 \\
 \bottomrule
 \end{tabular}
 \caption{Efficiency comparison. GFLOPs are per sample for a single forward pass of each tower, counted with \texttt{torch.utils.flop\_counter} (1 MAC = 2 FLOPs), at each model's native input resolution and context length.}
