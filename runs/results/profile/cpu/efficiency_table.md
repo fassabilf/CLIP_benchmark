@@ -8,5 +8,6 @@
 - GFLOPs per sample, torch.utils.flop_counter — true FLOPs (1 MAC = 2 FLOPs).
 - Each model at its own native input resolution and context length — TinyCLIP [3, 224, 224] / 77 tokens; MobileCLIP2 [3, 256, 256] / 77 tokens; SEA-CLIP-Tiny [3, 224, 224] / 77 tokens; MetaCLIP-2 B/16 (teacher) [3, 224, 224] / 77 tokens.
 - Parameter counts include each tower's final embedding projection head (0.00M, 0.10M, 0.13M, 0.39M image / 0.13M, 0.20M, 0.26M text).
+- Text counts include the token-embedding look-up table (TinyCLIP 12.65M, MobileCLIP2 25.30M, SEA-CLIP-Tiny 18.97M, MetaCLIP-2 B/16 (teacher) 461.63M). TinyCLIP's published counts exclude it.
 - Latency = median of 30 runs after 5 warmup passes, fp32, on cpu.
 - Throughput = batch size / mean batch time at bs=1, same runs and precision.

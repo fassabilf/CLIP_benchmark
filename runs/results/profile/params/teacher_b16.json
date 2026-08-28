@@ -2,7 +2,7 @@
   "device": "cpu",
   "gpu_name": null,
   "torch_version": "2.5.1+cu124",
-  "precision": "fp32",
+  "precision": "amp",
   "image_input_shape": [
     1,
     3,
@@ -35,31 +35,6 @@
     "image": 33.696251904,
     "text": 5.813829632,
     "total": 39.510081536
-  },
-  "latency": {
-    "1": {
-      "image": {
-        "mean_ms": 70.42114942936071,
-        "std_ms": 0.8726407265604734,
-        "p50_ms": 70.23522150120698,
-        "p90_ms": 71.58604398136958,
-        "min_ms": 69.51222597854212,
-        "runs": 30,
-        "warmup": 5
-      },
-      "text": {
-        "mean_ms": 20.300845131472062,
-        "std_ms": 0.15210289461023763,
-        "p50_ms": 20.25382299325429,
-        "p90_ms": 20.5569610116072,
-        "min_ms": 20.096388005185872,
-        "runs": 30,
-        "warmup": 5
-      },
-      "total_mean_ms": 90.72199456083277,
-      "images_per_sec": 14.200279434562447,
-      "texts_per_sec": 49.25903298723838
-    }
   },
   "key": "teacher_b16",
   "label": "MetaCLIP-2 B/16 (teacher)",

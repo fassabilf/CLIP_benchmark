@@ -2,7 +2,7 @@
   "device": "cpu",
   "gpu_name": null,
   "torch_version": "2.5.1+cu124",
-  "precision": "fp32",
+  "precision": "amp",
   "image_input_shape": [
     1,
     3,
@@ -35,31 +35,6 @@
     "image": 2.149515264,
     "text": 3.270377472,
     "total": 5.419892736
-  },
-  "latency": {
-    "1": {
-      "image": {
-        "mean_ms": 10.456541831566332,
-        "std_ms": 0.1810086344220148,
-        "p50_ms": 10.398678496130742,
-        "p90_ms": 10.744097991846502,
-        "min_ms": 10.276582004735246,
-        "runs": 30,
-        "warmup": 5
-      },
-      "text": {
-        "mean_ms": 13.814428868742349,
-        "std_ms": 0.1833227744028446,
-        "p50_ms": 13.730734499404207,
-        "p90_ms": 14.1744629945606,
-        "min_ms": 13.67927499813959,
-        "runs": 30,
-        "warmup": 5
-      },
-      "total_mean_ms": 24.27097070030868,
-      "images_per_sec": 95.63391187143614,
-      "texts_per_sec": 72.38808129539697
-    }
   },
   "key": "sea_clip_tiny",
   "label": "SEA-CLIP-Tiny",
