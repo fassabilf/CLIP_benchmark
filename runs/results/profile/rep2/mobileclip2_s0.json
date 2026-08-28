@@ -1,0 +1,100 @@
+{
+  "device": "cuda",
+  "gpu_name": "NVIDIA A100-SXM4-40GB",
+  "torch_version": "2.5.1+cu124",
+  "precision": "amp",
+  "image_input_shape": [
+    1,
+    3,
+    256,
+    256
+  ],
+  "text_input_shape": [
+    1,
+    77
+  ],
+  "flops_convention": "torch.utils.flop_counter \u2014 true FLOPs (1 MAC = 2 FLOPs)",
+  "params": {
+    "image": 11406976,
+    "text": 63428096,
+    "other": 1,
+    "total": 74835073,
+    "image_projection": 0,
+    "text_projection": 262144,
+    "image_vocab_embedding": 0,
+    "text_vocab_embedding": 25296896,
+    "unattributed": 0,
+    "method": "execution"
+  },
+  "flops": {
+    "image": 4785307648,
+    "text": 3876061184,
+    "total": 8661368832
+  },
+  "gflops": {
+    "image": 4.785307648,
+    "text": 3.876061184,
+    "total": 8.661368832
+  },
+  "latency": {
+    "1": {
+      "image": {
+        "mean_ms": 14.47147518157959,
+        "std_ms": 0.13073893187776198,
+        "p50_ms": 14.460927963256836,
+        "p90_ms": 14.48755168914795,
+        "min_ms": 14.414848327636719,
+        "runs": 100,
+        "warmup": 20,
+        "peak_mem_alloc_mb": 323.029296875,
+        "peak_mem_reserved_mb": 352.0
+      },
+      "text": {
+        "mean_ms": 5.174824948310852,
+        "std_ms": 0.01198732471483961,
+        "p50_ms": 5.175295829772949,
+        "p90_ms": 5.1906561851501465,
+        "min_ms": 5.147647857666016,
+        "runs": 100,
+        "warmup": 20,
+        "peak_mem_alloc_mb": 372.828125,
+        "peak_mem_reserved_mb": 392.0
+      },
+      "total_mean_ms": 19.64630012989044,
+      "images_per_sec": 69.1014556189045,
+      "texts_per_sec": 193.24325170195686
+    },
+    "1024": {
+      "image": {
+        "mean_ms": 531.4732250976563,
+        "std_ms": 0.178725933278137,
+        "p50_ms": 531.4247741699219,
+        "p90_ms": 531.7243041992188,
+        "min_ms": 531.0504760742188,
+        "runs": 100,
+        "warmup": 20,
+        "peak_mem_alloc_mb": 9258.099609375,
+        "peak_mem_reserved_mb": 11786.0
+      },
+      "text": {
+        "mean_ms": 71.31838478088379,
+        "std_ms": 0.1745521159939286,
+        "p50_ms": 71.22892761230469,
+        "p90_ms": 71.60012817382812,
+        "min_ms": 71.08096313476562,
+        "runs": 100,
+        "warmup": 20,
+        "peak_mem_alloc_mb": 2368.7001953125,
+        "peak_mem_reserved_mb": 11786.0
+      },
+      "total_mean_ms": 602.79160987854,
+      "images_per_sec": 1926.7198264067654,
+      "texts_per_sec": 14358.149068379818
+    }
+  },
+  "key": "mobileclip2_s0",
+  "label": "MobileCLIP2",
+  "model": "MobileCLIP2-S0",
+  "pretrained": "dfndr2b",
+  "model_type": "open_clip"
+}

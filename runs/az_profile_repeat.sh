@@ -31,12 +31,20 @@ PYTHON="/home/ffirdaus/.conda/envs/mc2_eval_env/bin/python"
 
 nvidia-smi --query-gpu=name,clocks.max.sm --format=csv,noheader
 
-for rep in 1 2 3; do
-    stage "repetition $rep of 3"
+# REPS repetitions into ${OUTBASE}1..N. Three repetitions inside ONE allocation
+# agree to ~1%, so they measure repeatability, not reproducibility: to capture the
+# ~10% that moves between allocations, submit this script several times with
+# REPS=1 and a distinct OUTBASE:
+#   for i in 1 2 3; do sbatch --export=ALL,REPS=1,OUTBASE=alloc$i runs/az_profile_repeat.sh; done
+REPS="${REPS:-3}"
+OUTBASE="${OUTBASE:-rep}"
+
+for rep in $(seq 1 "$REPS"); do
+    stage "repetition $rep of $REPS (${OUTBASE})"
     $PYTHON runs/profile_models.py \
         --rows tinyclip mobileclip2_s0 sea_clip_tiny teacher_b16 \
         --batch-size 1 1024 --warmup 20 --runs 100 \
-        --out-dir "$(pwd)/runs/results/profile/rep${rep}" \
+        --out-dir "$(pwd)/runs/results/profile/${OUTBASE}${rep}" \
         2>&1 | grep -vE "Loading weights|WARNING"
 done
 

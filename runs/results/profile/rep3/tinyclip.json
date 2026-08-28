@@ -1,0 +1,100 @@
+{
+  "device": "cuda",
+  "gpu_name": "NVIDIA A100-SXM4-40GB",
+  "torch_version": "2.5.1+cu124",
+  "precision": "amp",
+  "image_input_shape": [
+    1,
+    3,
+    224,
+    224
+  ],
+  "text_input_shape": [
+    1,
+    77
+  ],
+  "flops_convention": "torch.utils.flop_counter \u2014 true FLOPs (1 MAC = 2 FLOPs)",
+  "params": {
+    "image": 8276992,
+    "text": 15169024,
+    "other": 1,
+    "total": 23446017,
+    "image_projection": 131072,
+    "text_projection": 131072,
+    "image_vocab_embedding": 0,
+    "text_vocab_embedding": 12648448,
+    "unattributed": 0,
+    "method": "execution"
+  },
+  "flops": {
+    "image": 3573278720,
+    "text": 381807616,
+    "total": 3955086336
+  },
+  "gflops": {
+    "image": 3.57327872,
+    "text": 0.381807616,
+    "total": 3.955086336
+  },
+  "latency": {
+    "1": {
+      "image": {
+        "mean_ms": 5.405931525230407,
+        "std_ms": 0.19554654094090995,
+        "p50_ms": 5.323775768280029,
+        "p90_ms": 5.786623954772949,
+        "min_ms": 5.294079780578613,
+        "runs": 100,
+        "warmup": 20,
+        "peak_mem_alloc_mb": 116.3896484375,
+        "peak_mem_reserved_mb": 134.0
+      },
+      "text": {
+        "mean_ms": 2.577838077545166,
+        "std_ms": 0.09846066534568895,
+        "p50_ms": 2.5722880363464355,
+        "p90_ms": 2.7095038890838623,
+        "min_ms": 2.3449599742889404,
+        "runs": 100,
+        "warmup": 20,
+        "peak_mem_alloc_mb": 104.72802734375,
+        "peak_mem_reserved_mb": 134.0
+      },
+      "total_mean_ms": 7.983769602775574,
+      "images_per_sec": 184.98199530142566,
+      "texts_per_sec": 387.9219601536354
+    },
+    "1024": {
+      "image": {
+        "mean_ms": 70.88460815429687,
+        "std_ms": 0.038474535858753364,
+        "p50_ms": 70.89100646972656,
+        "p90_ms": 70.92428588867188,
+        "min_ms": 70.7061767578125,
+        "runs": 100,
+        "warmup": 20,
+        "peak_mem_alloc_mb": 2278.265625,
+        "peak_mem_reserved_mb": 2990.0
+      },
+      "text": {
+        "mean_ms": 9.112340564727782,
+        "std_ms": 0.02367906847738532,
+        "p50_ms": 9.102335929870605,
+        "p90_ms": 9.158656120300293,
+        "min_ms": 9.092096328735352,
+        "runs": 100,
+        "warmup": 20,
+        "peak_mem_alloc_mb": 1313.14990234375,
+        "peak_mem_reserved_mb": 2990.0
+      },
+      "total_mean_ms": 79.99694871902466,
+      "images_per_sec": 14446.013410570393,
+      "texts_per_sec": 112375.08000564841
+    }
+  },
+  "key": "tinyclip",
+  "label": "TinyCLIP",
+  "model": "wkcn/TinyCLIP-ViT-8M-16-Text-3M-YFCC15M",
+  "pretrained": "",
+  "model_type": "hf_transformers"
+}

@@ -1,0 +1,100 @@
+{
+  "device": "cuda",
+  "gpu_name": "NVIDIA A100-SXM4-40GB",
+  "torch_version": "2.5.1+cu124",
+  "precision": "amp",
+  "image_input_shape": [
+    1,
+    3,
+    224,
+    224
+  ],
+  "text_input_shape": [
+    1,
+    77
+  ],
+  "flops_convention": "torch.utils.flop_counter \u2014 true FLOPs (1 MAC = 2 FLOPs)",
+  "params": {
+    "image": 5622912,
+    "text": 40493184,
+    "other": 1,
+    "total": 46116097,
+    "image_projection": 98304,
+    "text_projection": 196608,
+    "image_vocab_embedding": 0,
+    "text_vocab_embedding": 18972672,
+    "unattributed": 0,
+    "method": "execution"
+  },
+  "flops": {
+    "image": 2507179008,
+    "text": 3379660800,
+    "total": 5886839808
+  },
+  "gflops": {
+    "image": 2.507179008,
+    "text": 3.3796608,
+    "total": 5.886839808
+  },
+  "latency": {
+    "1": {
+      "image": {
+        "mean_ms": 5.479208970069886,
+        "std_ms": 0.01062607211083504,
+        "p50_ms": 5.478400230407715,
+        "p90_ms": 5.494783878326416,
+        "min_ms": 5.453824043273926,
+        "runs": 100,
+        "warmup": 20,
+        "peak_mem_alloc_mb": 198.2802734375,
+        "peak_mem_reserved_mb": 218.0
+      },
+      "text": {
+        "mean_ms": 5.553080315589905,
+        "std_ms": 0.011803725526366302,
+        "p50_ms": 5.552639961242676,
+        "p90_ms": 5.567488193511963,
+        "min_ms": 5.5214080810546875,
+        "runs": 100,
+        "warmup": 20,
+        "peak_mem_alloc_mb": 229.93603515625,
+        "peak_mem_reserved_mb": 242.0
+      },
+      "total_mean_ms": 11.03228928565979,
+      "images_per_sec": 182.50809659979902,
+      "texts_per_sec": 180.0802335223869
+    },
+    "1024": {
+      "image": {
+        "mean_ms": 77.63447814941406,
+        "std_ms": 0.09465583663921408,
+        "p50_ms": 77.6094741821289,
+        "p90_ms": 77.76153564453125,
+        "min_ms": 77.52191925048828,
+        "runs": 100,
+        "warmup": 20,
+        "peak_mem_alloc_mb": 1672.0,
+        "peak_mem_reserved_mb": 2380.0
+      },
+      "text": {
+        "mean_ms": 55.24123638153076,
+        "std_ms": 0.0396108685837629,
+        "p50_ms": 55.237632751464844,
+        "p90_ms": 55.246849060058594,
+        "min_ms": 55.204864501953125,
+        "runs": 100,
+        "warmup": 20,
+        "peak_mem_alloc_mb": 1739.10302734375,
+        "peak_mem_reserved_mb": 2380.0
+      },
+      "total_mean_ms": 132.87571453094483,
+      "images_per_sec": 13190.015884813782,
+      "texts_per_sec": 18536.876925194272
+    }
+  },
+  "key": "sea_clip_tiny",
+  "label": "SEA-CLIP-Tiny",
+  "model": "ViT-T-16",
+  "pretrained": "",
+  "model_type": "open_clip"
+}
