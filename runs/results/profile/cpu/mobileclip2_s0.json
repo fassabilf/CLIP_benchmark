@@ -1,0 +1,67 @@
+{
+  "device": "cpu",
+  "gpu_name": null,
+  "torch_version": "2.5.1+cu124",
+  "precision": "fp32",
+  "image_input_shape": [
+    1,
+    3,
+    256,
+    256
+  ],
+  "text_input_shape": [
+    1,
+    77
+  ],
+  "flops_convention": "torch.utils.flop_counter \u2014 true FLOPs (1 MAC = 2 FLOPs)",
+  "params": {
+    "image": 11406976,
+    "text": 63428096,
+    "other": 1,
+    "total": 74835073,
+    "image_projection": 0,
+    "text_projection": 262144,
+    "unattributed": 0,
+    "method": "execution"
+  },
+  "flops": {
+    "image": 4768530432,
+    "text": 3876061184,
+    "total": 8644591616
+  },
+  "gflops": {
+    "image": 4.768530432,
+    "text": 3.876061184,
+    "total": 8.644591616
+  },
+  "latency": {
+    "1": {
+      "image": {
+        "mean_ms": 41.87167530277899,
+        "std_ms": 1.977633696719294,
+        "p50_ms": 41.567691005184315,
+        "p90_ms": 45.38809400401078,
+        "min_ms": 38.82266199798323,
+        "runs": 30,
+        "warmup": 5
+      },
+      "text": {
+        "mean_ms": 20.041822499479167,
+        "std_ms": 0.19296521602553746,
+        "p50_ms": 20.031027495861053,
+        "p90_ms": 20.31385901500471,
+        "min_ms": 19.834171020193025,
+        "runs": 30,
+        "warmup": 5
+      },
+      "total_mean_ms": 61.913497802258156,
+      "images_per_sec": 23.882493183491775,
+      "texts_per_sec": 49.89566193523505
+    }
+  },
+  "key": "mobileclip2_s0",
+  "label": "MobileCLIP2",
+  "model": "MobileCLIP2-S0",
+  "pretrained": "dfndr2b",
+  "model_type": "open_clip"
+}

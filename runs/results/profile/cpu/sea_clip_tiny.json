@@ -1,0 +1,67 @@
+{
+  "device": "cpu",
+  "gpu_name": null,
+  "torch_version": "2.5.1+cu124",
+  "precision": "fp32",
+  "image_input_shape": [
+    1,
+    3,
+    224,
+    224
+  ],
+  "text_input_shape": [
+    1,
+    77
+  ],
+  "flops_convention": "torch.utils.flop_counter \u2014 true FLOPs (1 MAC = 2 FLOPs)",
+  "params": {
+    "image": 5622912,
+    "text": 40493184,
+    "other": 1,
+    "total": 46116097,
+    "image_projection": 98304,
+    "text_projection": 196608,
+    "unattributed": 0,
+    "method": "execution"
+  },
+  "flops": {
+    "image": 2149515264,
+    "text": 3270377472,
+    "total": 5419892736
+  },
+  "gflops": {
+    "image": 2.149515264,
+    "text": 3.270377472,
+    "total": 5.419892736
+  },
+  "latency": {
+    "1": {
+      "image": {
+        "mean_ms": 10.456541831566332,
+        "std_ms": 0.1810086344220148,
+        "p50_ms": 10.398678496130742,
+        "p90_ms": 10.744097991846502,
+        "min_ms": 10.276582004735246,
+        "runs": 30,
+        "warmup": 5
+      },
+      "text": {
+        "mean_ms": 13.814428868742349,
+        "std_ms": 0.1833227744028446,
+        "p50_ms": 13.730734499404207,
+        "p90_ms": 14.1744629945606,
+        "min_ms": 13.67927499813959,
+        "runs": 30,
+        "warmup": 5
+      },
+      "total_mean_ms": 24.27097070030868,
+      "images_per_sec": 95.63391187143614,
+      "texts_per_sec": 72.38808129539697
+    }
+  },
+  "key": "sea_clip_tiny",
+  "label": "SEA-CLIP-Tiny",
+  "model": "ViT-T-16",
+  "pretrained": "",
+  "model_type": "open_clip"
+}

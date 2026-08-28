@@ -1,0 +1,67 @@
+{
+  "device": "cpu",
+  "gpu_name": null,
+  "torch_version": "2.5.1+cu124",
+  "precision": "fp32",
+  "image_input_shape": [
+    1,
+    3,
+    224,
+    224
+  ],
+  "text_input_shape": [
+    1,
+    77
+  ],
+  "flops_convention": "torch.utils.flop_counter \u2014 true FLOPs (1 MAC = 2 FLOPs)",
+  "params": {
+    "image": 86192640,
+    "text": 499765248,
+    "other": 1,
+    "total": 585957889,
+    "image_projection": 393216,
+    "text_projection": 262144,
+    "unattributed": 0,
+    "method": "execution"
+  },
+  "flops": {
+    "image": 33696251904,
+    "text": 5813829632,
+    "total": 39510081536
+  },
+  "gflops": {
+    "image": 33.696251904,
+    "text": 5.813829632,
+    "total": 39.510081536
+  },
+  "latency": {
+    "1": {
+      "image": {
+        "mean_ms": 70.42114942936071,
+        "std_ms": 0.8726407265604734,
+        "p50_ms": 70.23522150120698,
+        "p90_ms": 71.58604398136958,
+        "min_ms": 69.51222597854212,
+        "runs": 30,
+        "warmup": 5
+      },
+      "text": {
+        "mean_ms": 20.300845131472062,
+        "std_ms": 0.15210289461023763,
+        "p50_ms": 20.25382299325429,
+        "p90_ms": 20.5569610116072,
+        "min_ms": 20.096388005185872,
+        "runs": 30,
+        "warmup": 5
+      },
+      "total_mean_ms": 90.72199456083277,
+      "images_per_sec": 14.200279434562447,
+      "texts_per_sec": 49.25903298723838
+    }
+  },
+  "key": "teacher_b16",
+  "label": "MetaCLIP-2 B/16 (teacher)",
+  "model": "facebook/metaclip-2-worldwide-b16",
+  "pretrained": "",
+  "model_type": "hf_transformers"
+}

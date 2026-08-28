@@ -243,9 +243,16 @@ def render_markdown(results, with_latency=True, exclude_projections=False):
     notes = []
     r0 = results[0]
     notes.append(f"GFLOPs per sample, {r0['flops_convention']}.")
-    notes.append(f"Input {r0['image_input_shape'][1:]} image / "
-                 f"{r0['text_input_shape'][1]}-token text "
-                 "(each model at its own native resolution and context length).")
+    shapes = {r["label"]: (tuple(r["image_input_shape"][1:]), r["text_input_shape"][1])
+              for r in results}
+    if len(set(shapes.values())) == 1:
+        (img, ctx), = set(shapes.values())
+        notes.append(f"Input {list(img)} image / {ctx}-token text for every model.")
+    else:
+        per = "; ".join(f"{label} {list(img)} / {ctx} tokens"
+                        for label, (img, ctx) in shapes.items())
+        notes.append("Each model at its own native input resolution and context "
+                     f"length — {per}.")
     notes.append("Parameter counts "
                  + ("exclude" if exclude_projections else "include")
                  + " each tower's final embedding projection head "

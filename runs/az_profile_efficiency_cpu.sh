@@ -12,6 +12,10 @@
 # which is the setting a "deployable in a low-resource region" claim is really
 # about. fp32 (no autocast on CPU), fewer runs since each pass is far slower.
 #
+# Only the LATENCY columns of this run are usable. FLOPs come out ~0.36 GFLOPs
+# light per image tower here because the CPU's fused SDPA kernel hides the
+# attention matmuls from FlopCounterMode; quote the GPU run's FLOPs instead.
+#
 # Results go to runs/results/profile/cpu/ so they never overwrite the GPU JSONs —
 # latency is device-bound and the two must not be mixed in one table.
 #

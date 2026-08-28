@@ -19,7 +19,10 @@ via fvcore are usually reporting MACs, i.e. half of these numbers — the
 `flops_convention` field in the output records which convention is in use.
 
 Counting runs in fp32 without autocast (FLOPs are a property of the graph, not
-of precision). Latency runs under the same `torch.autocast(enabled=amp)` the
+of precision). Count on CUDA: on CPU the fused SDPA kernel is opaque to
+`FlopCounterMode`, so the attention QK^T/AV matmuls go uncounted and every
+image tower comes out ~0.36 GFLOPs light (ViT-T-16: 2.15 vs 2.51). Report the
+CUDA counts; use the CPU run for latency only. Latency runs under the same `torch.autocast(enabled=amp)` the
 eval metrics use, since that is what actually executes at eval time.
 """
 import statistics
