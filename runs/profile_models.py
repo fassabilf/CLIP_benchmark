@@ -173,11 +173,13 @@ def _g(n):
     return f"{n:.2f}"
 
 
-def _tower_params(r, tower, exclude_projections=False):
+def _tower_params(r, tower, exclude_projections=False, exclude_vocab=False):
     p = r["params"]
     n = p[tower]
     if exclude_projections:
         n -= p.get(f"{tower}_projection", 0)
+    if exclude_vocab:
+        n -= p.get(f"{tower}_vocab_embedding", 0)
     return n
 
 
@@ -203,7 +205,8 @@ def _has_memory(results, bs):
         "peak_mem_alloc_mb" in r["latency"][bs]["image"] for r in results)
 
 
-def render_markdown(results, with_latency=True, exclude_projections=False):
+def render_markdown(results, with_latency=True, exclude_projections=False,
+                    exclude_vocab=False):
     has_lat = with_latency and all("latency" in r for r in results)
     bs = tbs = None
     if has_lat:
@@ -228,8 +231,8 @@ def render_markdown(results, with_latency=True, exclude_projections=False):
     for r in results:
         g = r["gflops"]
         cells = [r["label"],
-                 _m(_tower_params(r, "image", exclude_projections)),
-                 _m(_tower_params(r, "text", exclude_projections)),
+                 _m(_tower_params(r, "image", exclude_projections, exclude_vocab)),
+                 _m(_tower_params(r, "text", exclude_projections, exclude_vocab)),
                  _g(g["image"]), _g(g["text"]), _g(g["total"])]
         if has_lat:
             lat, tput = r["latency"][bs], r["latency"][tbs]
@@ -258,6 +261,13 @@ def render_markdown(results, with_latency=True, exclude_projections=False):
                  + " each tower's final embedding projection head "
                  + f"({', '.join(sorted(set(_m(r['params']['image_projection']) for r in results)))} image / "
                  + f"{', '.join(sorted(set(_m(r['params']['text_projection']) for r in results)))} text).")
+    vocab = {r["label"]: r["params"].get("text_vocab_embedding", 0) for r in results}
+    if any(vocab.values()):
+        listed = ", ".join(f"{label} {_m(n)}" for label, n in vocab.items())
+        notes.append("Text counts "
+                     + ("exclude" if exclude_vocab else "include")
+                     + " the token-embedding look-up table "
+                     + f"({listed}). TinyCLIP's published counts exclude it.")
     if has_lat:
         gpus = {r.get("gpu_name") or r["device"] for r in results}
         notes.append(f"Latency = median of {r0['latency'][bs]['image']['runs']} runs "
@@ -272,7 +282,7 @@ def render_markdown(results, with_latency=True, exclude_projections=False):
     return "\n".join(lines) + "\n\n" + "\n".join(f"- {n}" for n in notes)
 
 
-def render_latex(results, exclude_projections=False):
+def render_latex(results, exclude_projections=False, exclude_vocab=False):
     L = [r"\begin{table}[h!]", r"\centering",
          r"\begin{tabular}{l r r r r r}", r"\toprule",
          r"\textbf{Model} & \textbf{Image params} & \textbf{Text params}",
@@ -281,8 +291,8 @@ def render_latex(results, exclude_projections=False):
     for r in results:
         g = r["gflops"]
         L.append(f"{r['label']} "
-                 f"& {_m(_tower_params(r, 'image', exclude_projections))} "
-                 f"& {_m(_tower_params(r, 'text', exclude_projections))} "
+                 f"& {_m(_tower_params(r, 'image', exclude_projections, exclude_vocab))} "
+                 f"& {_m(_tower_params(r, 'text', exclude_projections, exclude_vocab))} "
                  f"& {_g(g['image'])} & {_g(g['text'])} & {_g(g['total'])} \\\\")
     L += [r"\bottomrule", r"\end{tabular}",
           r"\caption{Efficiency comparison. GFLOPs are per sample for a single "
@@ -340,6 +350,10 @@ def main():
     ap.add_argument("--cache-dir", default=None)
     ap.add_argument("--check-vocab", action="store_true",
                     help="assert config matches checkpoint when --pretrained is a file.")
+    ap.add_argument("--exclude-vocab-embedding", action="store_true",
+                    help="report tower params without the token-embedding look-up table. "
+                         "Reproduces TinyCLIP's convention (Wu et al. 2023 §4.1), under "
+                         "which its text tower is the '3M' of its model name.")
     ap.add_argument("--exclude-projections", action="store_true",
                     help="report tower params without their final embedding projection "
                          "head. Reproduces the convention behind the commonly-quoted "
@@ -370,13 +384,15 @@ def main():
         return 1
 
     table = render_markdown(results, with_latency=not args.no_latency,
-                            exclude_projections=args.exclude_projections)
+                            exclude_projections=args.exclude_projections,
+                            exclude_vocab=args.exclude_vocab_embedding)
     print("\n" + table)
     md = PROFILE_DIR / "efficiency_table.md"
     md.write_text(table + "\n")
     print(f"\n→ {_rel(md)}")
 
-    tex = render_latex(results, exclude_projections=args.exclude_projections)
+    tex = render_latex(results, exclude_projections=args.exclude_projections,
+                       exclude_vocab=args.exclude_vocab_embedding)
     (PROFILE_DIR / "efficiency_table.tex").write_text(tex + "\n")
     if args.latex:
         print("\n" + tex)

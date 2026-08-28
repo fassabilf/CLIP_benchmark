@@ -171,6 +171,27 @@ def is_projection(name):
     return name in ("visual.proj", "visual.head.proj")
 
 
+def vocab_embedding_params(model, min_rows=1000):
+    """Names of the vocabulary look-up tables (`nn.Embedding` over a real vocab).
+
+    TinyCLIP's headline parameter counts exclude these: "we do not count the
+    number of parameters in the text embedding layer. It is a look-up table
+    whose parameter size is the same as the models with the same hidden
+    dimension and vocabulary size" (Wu et al., ICCV 2023, §4.1) — which is why
+    the same tower is quoted as 3M there and measures 15.17M here.
+
+    `min_rows` separates a vocabulary table from a positional one (77 or 577
+    rows), so no naming convention is assumed.
+    """
+    names = set()
+    for mod_name, mod in model.named_modules():
+        if isinstance(mod, torch.nn.Embedding) and mod.num_embeddings >= min_rows:
+            names.add(f"{mod_name}.weight" if mod_name else "weight")
+    # open_clip's CLIP declares token_embedding as an nn.Embedding too, so the
+    # module scan covers both loaders; a raw Parameter table would need a hint.
+    return names
+
+
 def split_params(model, image_names=None, text_names=None, extra_image_hints=()):
     """Split parameter counts into image tower / text tower / shared scalars.
 
@@ -191,9 +212,11 @@ def split_params(model, image_names=None, text_names=None, extra_image_hints=())
     """
     hints = tuple(IMAGE_PARAM_HINTS) + tuple(extra_image_hints)
     by_execution = image_names is not None and text_names is not None
+    vocab_names = vocab_embedding_params(model)
 
     image = text = other = unattributed = 0
     image_proj = text_proj = 0
+    image_vocab = text_vocab = 0
     for name, p in model.named_parameters():
         parts = name.split(".")
         n = p.numel()
@@ -217,10 +240,14 @@ def split_params(model, image_names=None, text_names=None, extra_image_hints=())
             image += n
             if is_projection(name):
                 image_proj += n
+            if name in vocab_names:
+                image_vocab += n
         elif bucket == "text":
             text += n
             if is_projection(name):
                 text_proj += n
+            if name in vocab_names:
+                text_vocab += n
         elif bucket == "other":
             other += n
         else:
@@ -236,6 +263,7 @@ def split_params(model, image_names=None, text_names=None, extra_image_hints=())
     return {
         "image": image, "text": text, "other": other, "total": total,
         "image_projection": image_proj, "text_projection": text_proj,
+        "image_vocab_embedding": image_vocab, "text_vocab_embedding": text_vocab,
         "unattributed": unattributed,
         "method": "execution" if by_execution else "name",
     }
