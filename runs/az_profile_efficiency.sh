@@ -47,7 +47,7 @@ $PYTHON runs/profile_models.py \
 stage "profiling 4 models (bs 1 and 64)"
 $PYTHON runs/profile_models.py \
     --rows tinyclip mobileclip2_s0 sea_clip_tiny teacher_b16 \
-    --batch-size 1 64 --warmup 20 --runs 100 \
+    --batch-size 1 64 1024 --warmup 20 --runs 100 \
     --exclude-projections --latex
 
 echo "=== done $(date) ==="
